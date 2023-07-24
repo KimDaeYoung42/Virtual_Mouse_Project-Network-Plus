@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>App_WebCam</class>
+ <widget class="QMainWindow" name="App_WebCam">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1180</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Icon/toolbar_icon.qrc">
+    <normaloff>:/icon/tap.png</normaloff>:/icon/tap.png</iconset>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="group_network">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>470</y>
+      <width>241</width>
+      <height>151</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>네트워크 접속</string>
+    </property>
+    <widget class="QPushButton" name="push_connect_Button">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>120</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>연 결</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="push_disconnect_Button">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>120</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>종 료</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>201</width>
+       <height>91</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>서버 IP</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QTextEdit" name="text_serverip">
+        <property name="placeholderText">
+         <string>127.0.0.1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>PORT</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QTextEdit" name="text_port">
+        <property name="placeholderText">
+         <string>9000</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>접속자명</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QTextEdit" name="text_nickname">
+        <property name="placeholderText">
+         <string>user</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="group_chatting">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>241</width>
+      <height>421</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>채팅 로그뷰</string>
+    </property>
+    <widget class="QTextEdit" name="text_chat_view">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>221</width>
+       <height>361</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>391</y>
+       <width>211</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QTextEdit" name="text_chatting_insert"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="push_chat_Button">
+        <property name="text">
+         <string>전 송</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="group_webcam">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>20</y>
+      <width>661</width>
+      <height>421</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>화면 그룹</string>
+    </property>
+    <widget class="QLabel" name="Webcam_label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>640</width>
+       <height>360</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="lineWidth">
+      <number>7</number>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>390</y>
+       <width>248</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="sharing_start_Button">
+        <property name="text">
+         <string>화면공유 시작 (임시)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sharing_stop_Button">
+        <property name="text">
+         <string>화면공유 종료(임시)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>430</x>
+       <y>390</y>
+       <width>221</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QPushButton" name="receive_start_Button">
+        <property name="text">
+         <string>공유화면 수신</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="receive_stop_Button">
+        <property name="text">
+         <string>공유화면 종료</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="group_event2">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>470</y>
+      <width>661</width>
+      <height>151</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>네트워크 이벤트뷰</string>
+    </property>
+    <widget class="QTextEdit" name="text_network_view">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>20</y>
+       <width>641</width>
+       <height>120</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="group_chatting_2">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>20</y>
+      <width>241</width>
+      <height>421</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>접속자 리스트뷰</string>
+    </property>
+    <widget class="QListView" name="person_listView">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>221</width>
+       <height>361</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>390</y>
+       <width>224</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QPushButton" name="remote_start_Button">
+        <property name="text">
+         <string>원격조정 시작(임시)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="remote_stop_Button">
+        <property name="text">
+         <string>원격 종료 (임시)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>470</y>
+      <width>241</width>
+      <height>151</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>파일 리스트뷰</string>
+    </property>
+    <widget class="QListView" name="file_listView">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>221</width>
+       <height>91</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>221</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QPushButton" name="file_send_Button">
+        <property name="text">
+         <string>파일 전송 </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="file_download_Button">
+        <property name="text">
+         <string>파일 다운로드</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1180</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuServer_S">
+    <property name="title">
+     <string>Server (&amp;S)</string>
+    </property>
+    <addaction name="actionServer_Run"/>
+    <addaction name="actionServer_Connect"/>
+   </widget>
+   <widget class="QMenu" name="menuMonitor_M">
+    <property name="title">
+     <string>Monitor (&amp;M)</string>
+    </property>
+    <addaction name="actionScreen_Sharing_Start"/>
+    <addaction name="actionScreen_Sharing_Stop"/>
+    <addaction name="separator"/>
+    <addaction name="actionScreen_Receive_Start"/>
+    <addaction name="actionScreen_Receive_Stop"/>
+   </widget>
+   <widget class="QMenu" name="menuControl_C">
+    <property name="title">
+     <string>Control (&amp;C)</string>
+    </property>
+    <addaction name="actionRemote_Start"/>
+    <addaction name="actionRemote_Stop"/>
+   </widget>
+   <widget class="QMenu" name="menuFile_F">
+    <property name="title">
+     <string>File (&amp;F)</string>
+    </property>
+    <addaction name="actionFile_Report"/>
+    <addaction name="actionFile_Sharing"/>
+    <addaction name="actionFile_Receive"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp_H">
+    <property name="title">
+     <string>Help! (&amp;H)</string>
+    </property>
+    <addaction name="actionHelp"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>|</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>|</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>|</string>
+    </property>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menuServer_S"/>
+   <addaction name="menuMonitor_M"/>
+   <addaction name="menuControl_C"/>
+   <addaction name="menuFile_F"/>
+   <addaction name="menu_2"/>
+   <addaction name="menuHelp_H"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNetwork_access"/>
+   <addaction name="separator"/>
+   <addaction name="actionsharing_on"/>
+   <addaction name="actionsharing_off"/>
+   <addaction name="separator"/>
+   <addaction name="actionreceive_on"/>
+   <addaction name="actionreceive_off"/>
+   <addaction name="separator"/>
+   <addaction name="actionremote_setting"/>
+   <addaction name="separator"/>
+   <addaction name="actionfile_report"/>
+   <addaction name="actionfile_share"/>
+   <addaction name="actionfile_recive"/>
+   <addaction name="separator"/>
+   <addaction name="actionhelp"/>
+   <addaction name="separator"/>
+  </widget>
+  <action name="actionmainw_icon1">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/tap.png</normaloff>:/icon/tap.png</iconset>
+   </property>
+   <property name="text">
+    <string>mainw_icon1</string>
+   </property>
+  </action>
+  <action name="actionSetting">
+   <property name="text">
+    <string>Setting</string>
+   </property>
+  </action>
+  <action name="actionMouse_On">
+   <property name="text">
+    <string>Mouse_On</string>
+   </property>
+  </action>
+  <action name="actionProgram_Exit">
+   <property name="text">
+    <string>Program_Exit</string>
+   </property>
+  </action>
+  <action name="actionMouse_Off">
+   <property name="text">
+    <string>Mouse_Off</string>
+   </property>
+  </action>
+  <action name="actionKeyboard_On">
+   <property name="text">
+    <string>Keyboard_On</string>
+   </property>
+  </action>
+  <action name="actionKeyboard_Off">
+   <property name="text">
+    <string>Keyboard_Off</string>
+   </property>
+  </action>
+  <action name="actionNetwork_access">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/antenna.png</normaloff>:/icon/antenna.png</iconset>
+   </property>
+   <property name="text">
+    <string>Network_access
+</string>
+   </property>
+   <property name="font">
+    <font/>
+   </property>
+  </action>
+  <action name="actionsharing_on">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/webcam_on.png</normaloff>:/icon/webcam_on.png</iconset>
+   </property>
+   <property name="text">
+    <string>웹캠 공유 시작</string>
+   </property>
+   <property name="toolTip">
+    <string>웹캠 공유 실행 버튼</string>
+   </property>
+   <property name="statusTip">
+    <string>웹캠 공유 실행 버튼</string>
+   </property>
+  </action>
+  <action name="actionsharing_off">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/webcam_off.png</normaloff>:/icon/webcam_off.png</iconset>
+   </property>
+   <property name="text">
+    <string>웹캠 공유 종료 </string>
+   </property>
+   <property name="toolTip">
+    <string>웹캠 공유 종료 버튼</string>
+   </property>
+   <property name="statusTip">
+    <string>웹캠 공유 종료 버튼</string>
+   </property>
+  </action>
+  <action name="actionreceive_on">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/receive_on.png</normaloff>:/icon/receive_on.png</iconset>
+   </property>
+   <property name="text">
+    <string>화면 수신 시작</string>
+   </property>
+   <property name="toolTip">
+    <string>화면 수신 시작 버튼</string>
+   </property>
+   <property name="statusTip">
+    <string>화면 수신 시작 버튼</string>
+   </property>
+  </action>
+  <action name="actionreceive_off">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/receive_off.png</normaloff>:/icon/receive_off.png</iconset>
+   </property>
+   <property name="text">
+    <string>화면 수신 종료</string>
+   </property>
+   <property name="toolTip">
+    <string>화면 수신 종료 버튼</string>
+   </property>
+   <property name="statusTip">
+    <string>화면 수신 종료 버튼</string>
+   </property>
+  </action>
+  <action name="actionremote_setting">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/remote-access.png</normaloff>:/icon/remote-access.png</iconset>
+   </property>
+   <property name="text">
+    <string>원격 조정 </string>
+   </property>
+   <property name="iconText">
+    <string>원격 조정 </string>
+   </property>
+   <property name="toolTip">
+    <string>원격 조정 버튼</string>
+   </property>
+   <property name="statusTip">
+    <string>원격 조정 버튼</string>
+   </property>
+  </action>
+  <action name="actionfile_report">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/file_list.png</normaloff>:/icon/file_list.png</iconset>
+   </property>
+   <property name="text">
+    <string>파일 현황</string>
+   </property>
+   <property name="toolTip">
+    <string>파일 현황 버튼</string>
+   </property>
+   <property name="statusTip">
+    <string>파일 현황 버튼</string>
+   </property>
+  </action>
+  <action name="actionfile_share">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/file_share.png</normaloff>:/icon/file_share.png</iconset>
+   </property>
+   <property name="text">
+    <string>파일 전송</string>
+   </property>
+   <property name="toolTip">
+    <string>파일 전송 버튼 </string>
+   </property>
+   <property name="statusTip">
+    <string>파일 전송 버튼 </string>
+   </property>
+  </action>
+  <action name="actionfile_recive">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/file_received.png</normaloff>:/icon/file_received.png</iconset>
+   </property>
+   <property name="text">
+    <string>파일 수신 </string>
+   </property>
+   <property name="toolTip">
+    <string>파일 수신 버튼</string>
+   </property>
+   <property name="statusTip">
+    <string>파일 수신 버튼</string>
+   </property>
+  </action>
+  <action name="actionhelp">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/help.png</normaloff>:/icon/help.png</iconset>
+   </property>
+   <property name="text">
+    <string>도움!</string>
+   </property>
+   <property name="iconText">
+    <string>도움!</string>
+   </property>
+   <property name="toolTip">
+    <string>도움!</string>
+   </property>
+   <property name="statusTip">
+    <string>도움!</string>
+   </property>
+  </action>
+  <action name="actionServer_Run">
+   <property name="text">
+    <string>Server Run</string>
+   </property>
+  </action>
+  <action name="actionServer_Connect">
+   <property name="text">
+    <string>Server Connect</string>
+   </property>
+  </action>
+  <action name="actionScreen_Sharing_Start">
+   <property name="text">
+    <string>Screen Sharing Start</string>
+   </property>
+  </action>
+  <action name="actionScreen_Sharing_Stop">
+   <property name="text">
+    <string>Screen Sharing Stop</string>
+   </property>
+  </action>
+  <action name="actionScreen_Receive_Start">
+   <property name="text">
+    <string>Screen Receive Start</string>
+   </property>
+  </action>
+  <action name="actionScreen_Receive_Stop">
+   <property name="text">
+    <string>Screen Receive Stop</string>
+   </property>
+  </action>
+  <action name="actionRemote_Start">
+   <property name="text">
+    <string>Remote_Start</string>
+   </property>
+  </action>
+  <action name="actionRemote_Stop">
+   <property name="text">
+    <string>Remote_Stop</string>
+   </property>
+  </action>
+  <action name="actionFile_Report">
+   <property name="text">
+    <string>File Report</string>
+   </property>
+  </action>
+  <action name="actionFile_Sharing">
+   <property name="text">
+    <string>File Sharing</string>
+   </property>
+  </action>
+  <action name="actionFile_Receive">
+   <property name="text">
+    <string>File Receive</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help!</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="Icon/toolbar_icon.qrc"/>
+ </resources>
+ <connections/>
+</ui>
