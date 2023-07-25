@@ -1,0 +1,14 @@
+C:\Users\user\Desktop\Project\Project_Server\Server\bin\Debug\Server.exe.config
+C:\Users\user\Desktop\Project\Project_Server\Server\bin\Debug\Server.exe
+C:\Users\user\Desktop\Project\Project_Server\Server\bin\Debug\Server.pdb
+C:\Users\user\Desktop\Project\Project_Server\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\user\Desktop\Project\Project_Server\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\Project\Project_Server\Server\obj\Debug\Server.exe
+C:\Users\user\Desktop\Project\Project_Server\Server\obj\Debug\Server.pdb
+C:\Users\user\Desktop\Project_Server (Login 추가)\Server\bin\Debug\Server.exe.config
+C:\Users\user\Desktop\Project_Server (Login 추가)\Server\bin\Debug\Server.exe
+C:\Users\user\Desktop\Project_Server (Login 추가)\Server\bin\Debug\Server.pdb
+C:\Users\user\Desktop\Project_Server (Login 추가)\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\user\Desktop\Project_Server (Login 추가)\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\Project_Server (Login 추가)\Server\obj\Debug\Server.exe
+C:\Users\user\Desktop\Project_Server (Login 추가)\Server\obj\Debug\Server.pdb
