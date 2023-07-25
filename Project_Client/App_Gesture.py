@@ -19,7 +19,9 @@ import pyautogui
 import time
 import pygetwindow as gw
 import numpy as np
-import Socket
+
+import socket
+
 #################
 # 모니터 화면 크기 설정
 screen_size = autopy.screen.size()                  # print(screen_size) 1920, 1080 <- 모니터 1대만 사용시 기준
@@ -41,7 +43,7 @@ class Active_Webcam(QMainWindow):
         # UI 관련
         loadUi("UI_App_WebCam.ui", self)      # UI 파일 로드
         self.setWindowTitle("가상 인터페이스 프로그램")
-        self.setGeometry(100, 440, 950, 420)
+        self.setGeometry(100, 500, 950, 420)
         self.setMinimumSize(950, 420)
 
         # 웹캠 관련

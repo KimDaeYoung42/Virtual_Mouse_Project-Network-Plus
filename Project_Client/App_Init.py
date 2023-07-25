@@ -31,7 +31,8 @@ class App_Control(QMainWindow):
         super().__init__()
         loadUi("UI_App.ui", self)  # UI 파일 로드
         self.setWindowTitle("가상 인터페이스 프로그램")
-        self.setGeometry(100, 100, 320, 300)
+        self.setGeometry(100, 100, 320, 360)
+        self.setMinimumSize(320, 360)
 
         # 인스턴스 생성
         self.app_window = Active_Window()
@@ -69,7 +70,7 @@ class App_Control(QMainWindow):
 
     # 사용자 버튼 클릭시
     def start_user(self):
-        self.net_connect_box()
+        # self.net_connect_box()
         if self.app_start_count == 0:
             self.app_start_count += 1
             self.app_window.show()
@@ -82,23 +83,23 @@ class App_Control(QMainWindow):
     # Port 박스 : text_port
     # 접속자명 박스 : text_nickname
 
-    def net_connect_box(self):
-        self.net_connect_data()
+    # def net_connect_box(self):
+    #     self.net_connect_data()
 
-    def net_connect_data(self):
-        # 메모장에 ip, port, 닉네임 쓰기
-        text1 = self.text_serverip.toPlainText()
-        text2 = self.text_port.toPlainText()
-        text3 = self.text_nickname.toPlainText()
-
-        # 파일에 데이터 쓰기
-        with open("network_data.txt", "w") as file:
-            file.write(text1 + "\n")
-            file.write(text2 + "\n")
-            file.write(text3 + "\n")
+    # def net_connect_data(self):
+    #     # 메모장에 ip, port, 닉네임 쓰기
+    #     text1 = self.text_serverip.toPlainText()
+    #     text2 = self.text_port.toPlainText()
+    #     text3 = self.text_nickname.toPlainText()
+    #
+    #     # 파일에 데이터 쓰기
+    #     with open("network_data.txt", "w") as file:
+    #         file.write(text1 + "\n")
+    #         file.write(text2 + "\n")
+    #         file.write(text3 + "\n")
 
     def start_admin(self):
-        self.net_connect_box()
+        # self.net_connect_box()
         if self.app_start_count == 0:
             self.app_start_count += 1
             self.app_window.show()
@@ -114,9 +115,8 @@ class App_Control(QMainWindow):
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setWindowTitle("네트워크 오류")
         msg_box.setText("이미 네트워크 접속 중이거나 다중 네트워크 접속 시도 오류입니다.")
+        msg_box.setInformativeText("프로그램을 다시 실행시켜주세요")
         msg_box.exec_()
-
-
 
     # # 웹캠 UI 버튼
     # def start_webcam(self):
