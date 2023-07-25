@@ -79,7 +79,7 @@ namespace Server
 
         public void WorkThread(object value)
         {
-            Socket Client = (Socket)value;
+            Socket client = (Socket)value;
 
             try
             {
@@ -88,10 +88,10 @@ namespace Server
                 {
                     string msg = string.Empty;
                     //문자열 수신
-                    if (ReceiveData(Client, ref data) == true)
+                    if (ReceiveData(client, ref data) == true)
                     {
                         msg = Encoding.Default.GetString(data).Trim('\0');
-                        recv_del(Client, msg);
+                        recv_del(client, msg);
                     }
                     else
                     {
@@ -100,14 +100,14 @@ namespace Server
                     }
 
                     //SendData(client, msg, msg.Length);
-                    //SendAllData(client, msg, msg.Length);
+                    SendAllData(client, msg, msg.Length);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                sockets.Remove(Client);
-                Client.Close();
+                sockets.Remove(client);
+                client.Close();
             }
         }
         #endregion
@@ -127,7 +127,7 @@ namespace Server
         {
             foreach (Socket s in sockets)
             {
-                SendAllData(s, msg, size);
+                SendData(s, msg, size);
             }
         }
 

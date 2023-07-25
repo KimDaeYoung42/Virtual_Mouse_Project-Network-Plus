@@ -23,20 +23,23 @@ namespace Server
         {
             string packet = string.Empty;
 
-            packet += Shortmessage_ACK + "@";
+            packet += Shortmessage_ACK + '@';
 
-            packet += nickname + "#";
+            packet += nickname + '#';
             packet += msg;
 
             return packet;
         }
 
         //파일 보내기
-        public static string SendFile_ACK()
+        public static string SendFile_ACK(string filename, int size)
         {
             string packet = string.Empty;
 
-            packet += Sendfile_ACK + "@";
+            packet += Sendfile_ACK + '@';
+
+            packet += filename + '#';
+            packet += size;
 
             return packet;
         }
@@ -46,7 +49,7 @@ namespace Server
         {
             string packet = string.Empty;
 
-            packet += Sendbyte_ACK + "@";
+            packet += Sendbyte_ACK + '@';
 
             packet += bytes;
 

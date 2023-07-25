@@ -37,7 +37,7 @@ namespace Server
         public void ShortMessage(Socket sock, string name, string msg)
         {
             //1. 수신 데이터 처리
-            Console.WriteLine("메시지 전송 - {0} : {1}", name, msg);
+            Console.WriteLine("메시지 전송, {0} : {1}", name, msg);
 
             //2. 응답패킷 생성 및 전송
             string pack = Packet.ShortMessage_ACK(name, msg);
