@@ -98,9 +98,6 @@ namespace Server
                         Console.WriteLine("수신 데이터 없음");
                         throw new Exception("수신 오류");
                     }
-
-                    //SendData(client, msg, msg.Length);
-                    SendAllData(client, msg, msg.Length);
                 }
             }
             catch (Exception ex)
@@ -114,6 +111,7 @@ namespace Server
 
         #region 데이터 송/수 신부
 
+        // 한개의 클라에만 송신
         public void SendData(Socket sock, string msg, int size)
         {
             // 문자열 전송
@@ -123,6 +121,7 @@ namespace Server
             Console.WriteLine("데이터 전송 : {0}byte\n", ret);
         }
 
+        // 연결된 모든 클라에 송신
         public void SendAllData(Socket sock, string msg, int size)
         {
             foreach (Socket s in sockets)

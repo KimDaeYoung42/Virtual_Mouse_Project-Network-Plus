@@ -43,6 +43,26 @@ namespace Server
             string pack = Packet.ShortMessage_ACK(name, msg);
             server.SendAllData(sock, pack, pack.Length);
         }
+
+        public void SendFile(Socket sock, string filename, int size)
+        {
+            //1. 수신 데이터 처리
+            Console.WriteLine("파일 전송, {0} : {1}", filename, size);
+
+            //2. 응답패킷 생성 및 전송
+            string pack = Packet.SendFile_ACK(filename, size);
+            server.SendAllData(sock, pack, pack.Length);
+        }
+
+        public void ScreenShare(Socket sock, byte[] bytes)
+        {
+            //1. 수신 데이터 처리
+            Console.WriteLine("화면 공유, {0}", bytes);
+
+            //2. 응답패킷 생성 및 전송
+            string pack = Packet.SendByte_ACK(bytes);
+            server.SendAllData(sock, pack, pack.Length);
+        }
         #endregion
 
     }

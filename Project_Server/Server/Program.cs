@@ -27,6 +27,17 @@ namespace Server
                 string[] sp2 = sp1[1].Split('#');
                 Control.Instance.ShortMessage(sock, sp2[0], sp2[1]);
             }
+            else if (sp1[0].Equals(Packet.Sendfile))
+            {
+                string[] sp2 = sp1[1].Split('#');
+                Control.Instance.SendFile(sock, sp2[0], int.Parse(sp2[1]));
+            }
+            else if (sp1[0].Equals(Packet.Sendbyte))
+            {
+                // sp1[1] 의 바이트 배열을 보낸다.
+                byte[] bytes = Encoding.UTF8.GetBytes(sp1[1]);
+                Control.Instance.ScreenShare(sock, bytes);
+            }
         }
 
         public void Run()
