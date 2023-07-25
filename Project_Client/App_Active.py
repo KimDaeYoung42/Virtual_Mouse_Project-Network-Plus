@@ -15,6 +15,9 @@ import icon_toolbar                                 # 삭제 금지! 비활성�
 class Active_Window(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.users = []
+        self.ret = False
+        self.myname = ''
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -50,10 +53,13 @@ class Active_Window(QMainWindow):
         self.actionfile_recive.triggered.connect(self.network_view)
         self.actionhelp.triggered.connect(self.network_view)
 
+        self.push_connect_Button.clicked.connect(self.network_connect) 
+
         # 네트워크 관련
         # self.network_box()
         self.network_read_data()
-
+            
+        
     #################################################################################################
 
     # 임시 0. Ip, Port, 접속자명 입력 및 연결&종료
@@ -86,19 +92,45 @@ class Active_Window(QMainWindow):
         except FileNotFoundError:
             pass
 
+    def Recv_data(self):
+        self.RecvData = Network_Control.RecvData(sock=self.sock)
+        self.text_network_view.append(self.RecvData)
+        # 받은 패킷을 파싱
+        sp1 = self.RecvData.split('@')
+        
+        # 패킷을 파싱하여 적절한 동작을 한다.
+        if sp1[0] == Network_Packet.Shortmessage_ACK:
+            sp2 = sp1[1].split('#')
+            chat = sp2[0] + ' : ' + sp2[1]
+            self.text_chat_view.append(chat)
+        elif sp1[0] == Network_Packet.Login_ACK:
+            self.myname = sp1[1]
+            self.users.append(sp1[1])
+            
+
+
     # ui에 입력한 ip, port, nickname 정보를 가지고 서버 연결하는 코드 작성 필요함!
     def network_connect(self):
-        ip = self.text_serverip()
-        port = self.text_port()
-        nickname = self.text_nickname()
+        # ip = self.text_serverip()
+        # port = self.text_port()
+        # nickname = self.text_nickname()
+        ip = '127.0.0.1'
+        port = 9000
+        nickname = 'woohyun'
 
         # 입력한 정보로 서버 연결
-        Network_Control.Connect(sock=self.sock, ip=ip, port=port)
+        self.ret = Network_Control.Connect(sock=self.sock, ip=ip, port=port)
+
+        # 서버로 부터 데이터를 받는 인스턴스를 생성?
+        
 
         # 패킷 만들기
-        packet = Network_Packet.LogIn(name=nickname)
+        packet = Network_Packet.LogIn(self=self, name=nickname)
 
         # 패킷 전송
+        Network_Control.SendData(sock=self.sock, msg=packet)
+
+        return self.ret
 
     # 공통 0. 네트워크 이벤트뷰
     # self.text_network_view.append('네트워크 이벤트뷰 테스트')
