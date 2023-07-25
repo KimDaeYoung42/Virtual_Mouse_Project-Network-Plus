@@ -19,6 +19,7 @@ import pyautogui
 import time
 import pygetwindow as gw
 import numpy as np
+import Socket
 #################
 # 모니터 화면 크기 설정
 screen_size = autopy.screen.size()                  # print(screen_size) 1920, 1080 <- 모니터 1대만 사용시 기준
@@ -33,6 +34,9 @@ screen_size_x, screen_size_y = screen_size
 class Active_Webcam(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # 서버에 연결해야 한다. ip = 127.0.0.1 (로컬), port = 9000, 접속자명 -> 입력받은 데이터를 가져온다.
+        # 서버에 연결한 후 Login 패킷을 보내 접속자의 이름을 통지.
 
         # UI 관련
         loadUi("UI_App_WebCam.ui", self)      # UI 파일 로드
@@ -89,7 +93,10 @@ class Active_Webcam(QMainWindow):
         else:
             frame = cv2.flip(frame, 1)                                      # 웹캠 좌우 반전
             frame = self.hand_detector.find_hands(frame)
-            left_lm_list, right_lm_list = self.hand_detector.find_positions(frame)
+            left_lm_list = []
+            right_lm_list = []
+            lm_list, label = self.hand_detector.find_positions(frame)
+            action = self.hand_detector.action_estimation(frame)
 
             # 손가락 각도 계산
             joint_list = [[3, 0, 5], [4, 3, 2], [8, 7, 6], [12, 11, 10], [16, 15, 14], [20, 19, 18]]

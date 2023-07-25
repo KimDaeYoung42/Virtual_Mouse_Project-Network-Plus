@@ -4,12 +4,19 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDesktopWidget
 from PyQt5.QtCore import Qt, QRect, pyqtSlot
 from PyQt5.uic import loadUi
+import socket
+
+import Network_Control
+import Network_Packet
+
 
 import icon_toolbar                                 # 삭제 금지! 비활성화상태라도 활성화되어있음!
 
 class Active_Window(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # 임시 UI 구성
         loadUi("UI_App_Active.ui", self)  # 추후 UI 파일 제작 후 적용하기.
@@ -85,10 +92,13 @@ class Active_Window(QMainWindow):
         port = self.text_port()
         nickname = self.text_nickname()
 
+        # 입력한 정보로 서버 연결
+        Network_Control.Connect(sock=self.sock, ip=ip, port=port)
 
+        # 패킷 만들기
+        packet = Network_Packet.LogIn(name=nickname)
 
-
-
+        # 패킷 전송
 
     # 공통 0. 네트워크 이벤트뷰
     # self.text_network_view.append('네트워크 이벤트뷰 테스트')
