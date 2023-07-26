@@ -13,12 +13,14 @@ namespace Server
         public const string Shortmessage = "SHORTMESSAGE";
         public const string Sendfile = "SENDFILE";
         public const string Sendbyte = "SENDBYTE";
+        public const string Sendremote = "SENDREMOTE";
 
         // Server -> Client
         public const string Login_ACK = "LOGIN_ACK";
         public const string Shortmessage_ACK = "SHORTMESSAGE_ACK";
         public const string Sendfile_ACK = "SENDFILE_ACK";
         public const string Sendbyte_ACK = "SENDBYTE_ACK";
+        public const string Sendremote_ACK = "SENDREMOTE_ACK";
 
         //메시지(채팅)
         public static string LogIn_ACK(string name)
@@ -62,6 +64,18 @@ namespace Server
             string packet = string.Empty;
 
             packet += Sendbyte_ACK + '@';
+
+            packet += bytes;
+
+            return packet;
+        }
+
+        //원격 제어
+        public static string SendRemote_ACK(byte[] bytes)
+        {
+            string packet = string.Empty;
+
+            packet += Sendremote_ACK + '@';
 
             packet += bytes;
 
