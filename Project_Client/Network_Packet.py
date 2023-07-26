@@ -12,12 +12,14 @@ Login = "LOGIN"
 Shortmessage = "SHORTMESSAGE"
 Sendfile = "SENDFILE"
 Sendbyte = "SENDBYTE"
+Sendremote = "SENDREMOTE"
 
 # Server - > Client
 Login_ACK = "LOGIN_ACK"
 Shortmessage_ACK = "SHORTMESSAGE_ACK"
 Sendfile_ACK = "SENDFILE_ACK"
 Sendbyte_ACK = "SENDBYTE_ACK"
+Sendremote_ACK = "SENDREMOTE_ACK"
 
 # Client -> Server 전송 패킷 만드는 부분
 
@@ -55,6 +57,15 @@ def SendByte(self, bytes):
     self.pack = ''
 
     self.pack += Sendbyte + '@'
+    self.pack += bytes
+
+    return self.pack
+
+# 원격 제어 ( 입력된 키 인식을 byte배열로 전환해서 전송 )
+def SendRomte(self, bytes):
+    self.pack = ''
+
+    self.pack += Sendremote + '@'
     self.pack += bytes
 
     return self.pack
