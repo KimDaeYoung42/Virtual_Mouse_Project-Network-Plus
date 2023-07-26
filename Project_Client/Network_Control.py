@@ -1,36 +1,100 @@
 # 네트워크 관련 코드
 import struct
+import socket
+import threading
 
-# 1. 네트워크 연결하는 부분
-def Connect(sock, ip, port):
-    # 서버에 연결
-    sock.connect((ip, port))
+class Client:
+    # 생성자
+    def __init__(self, ip, port):
+        self.sock = None
+        self.recv_del = None
+        self.RThread = None
+        self.ip = ip
+        self.port = port
+        self.in_running = True
 
-    return True
+    def open(self, fun):
+        self.recv_del = fun
+        try:
+            # 소켓 생성
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# 2. 데이터 송신 부분 ( 클라 -> 서버 )
-def SendData(sock, msg):
-    # 1. 전송할 데이터의 크기 전송
-    data_size = struct.pack('I', len(msg))
-    sock.send(data_size)
+            # 연결
+            self.sock.connect((self.ip, self.port))
 
-    # 2. 실제 데이터 전송
-    sock.send(msg.encode('utf-8'))
+            # 수신 스레드 생성
+            self.RThread = threading.Thread(target=self.recv_thread)
+            self.RThread.daemon = True
+            self.RThread.start()
 
-# 3. 데이터 수신 부분 ( 서버 -> 클라 )
-def RecvData(sock):
-    # 3. 데이터 크기 수신
-    data_size = sock.recv(4)
-    data_size = struct.unpack('I', data_size)[0]
+            # 결과 반환
+            return True
+        except Exception as e:
+            print(f"Error occurred while opening the client : {e}")
+            return False
+        
+    def close(self):
+        self.sock.close()
+        self.in_running = False
+        
+    def recv_thread(self):
+        data = None
+        while self.in_running:
+            # 데이터 수신처리
+            data = self.RecvData(data)
 
-    # 4. 실제 데이터 수신
-    recv_data = b""
-    while len(recv_data) < data_size:
-        chunk = sock.recv(min(data_size - len(recv_data), 1024))
-        if not chunk:
-            break
-        recv_data += chunk
+            msg = data.decode("utf-8").strip('\0')
+            self.recv_del(msg)
+            
+    
+    # 데이터 송/수신
+    def SendData(self, msg):
+        buffer = msg.encode('utf-8')
+        self.send_data(buffer)
 
-    print(recv_data.decode('utf-8'))
+    def send_data(self, data):
+        try:
+            total = 0           # 보낸크기
+            size = len(data)        # 보낼크기
+            left_data = size    # 남은크기
 
-    return recv_data.decode('utf-8')
+            # 1) 전송할 데이터의 크기 전달
+            data_size = struct.pack('I', size)
+            self.sock.send(data_size)
+
+            # 2) 실제 데이터 전송
+            while total < size:
+                ret = self.sock.send(data[total:])
+                total += ret
+                left_data -= ret
+        except Exception as e:
+            print(e)
+        
+
+    def RecvData(self, data):
+        try:
+            total = 0
+            size = 0
+            left_data = 0
+
+            # 1) 수신할 데이터 크기 알아내기
+            data_size = self.sock.recv(4)
+            size = struct.unpack('I', data_size)[0]
+            left_data = size
+
+            data = b''
+
+            # 2) 실제 데이터 수신
+            while total < size:
+                recv_data = self.sock.recv(left_data)
+                if not recv_data:
+                    break
+                data += recv_data
+                total += len(recv_data)
+                left_data -= len(recv_data)
+
+            return data
+        
+        except Exception as e:
+            print(e)
+            return None
