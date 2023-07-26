@@ -13,6 +13,7 @@ Logout = "LOGOUT"
 Shortmessage = "SHORTMESSAGE"
 Sendfile = "SENDFILE"
 Sendbyte = "SENDBYTE"
+Sendremote = "SENDREMOTE"
 
 # Server - > Client
 Login_ACK = "LOGIN_ACK"
@@ -20,6 +21,7 @@ Logout_ACK = "LOGOUT_ACK"
 Shortmessage_ACK = "SHORTMESSAGE_ACK"
 Sendfile_ACK = "SENDFILE_ACK"
 Sendbyte_ACK = "SENDBYTE_ACK"
+Sendremote_ACK = "SENDREMOTE_ACK"
 
 # Client -> Server 전송 패킷 만드는 부분
 
@@ -45,7 +47,7 @@ def LogOut(name):
 def ShortMessage(name, msg):
     pack = ''
 
-    pack += ShortMessage + '@'
+    pack += Shortmessage + '@'
     pack += name + '#'
     pack += msg
 
@@ -66,6 +68,15 @@ def SendByte(bytes):
     pack = ''
 
     pack += Sendbyte + '@'
+    pack += bytes
+
+    return pack
+
+# 원격 제어 ( 입력된 키 인식을 byte배열로 전환해서 전송 )
+def SendRomte(bytes):
+    pack = ''
+
+    pack += Sendremote + '@'
     pack += bytes
 
     return pack
