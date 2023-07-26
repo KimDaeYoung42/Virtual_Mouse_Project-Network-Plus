@@ -119,8 +119,7 @@ class Active_Window(QMainWindow):
                 chat = sp2[0] + ' : ' + sp2[1]
                 self.text_chat_view.append(chat)
             elif sp1[0] == Network_Packet.Login_ACK:
-                self.myname = sp1[1]
-                self.users.append(sp1[1])
+                self.text_chat_view.append(f"{sp1[1]} : 입장"))
         else:
             self.text_chat_view.append('에러 : 네트워크 Recv_data 접속에 실패하였습니다.')
             
@@ -140,6 +139,8 @@ class Active_Window(QMainWindow):
             self.text_network_view.append('네트워크 : 네트워크 연결되었습니다.')
             pack = Network_Packet.LogIn(self.nickname)
             self.client.SendData(pack)
+        else:
+            self.text_network_view.append('에러 : 이미 네트워크 접속되어 있습니다.')
 
     def network_disconnect(self):
         if self.network_connect_count:
@@ -164,35 +165,75 @@ class Active_Window(QMainWindow):
         self.text_chat_view.append('채팅 뷰')
 
     def chatting_send(self):
-        self.text_chat_view.append('채팅 테스트')
-
-        chatting_insert = self.text_chatting_insert.toPlainText()
-
-        # 로그인 패킷 생성 및 전송
-        pack = Network_Packet.ShortMessage(self.nickname, chatting_insert)
-        self.client.SendData(pack) 
-
+        if self.network_connect_count:
+            self.text_chat_view.append('채팅 테스트')
+    
+            chatting_text = self.text_chatting_insert.toPlainText()
+    
+            # 로그인 패킷 생성 및 전송
+            pack = Network_Packet.ShortMessage(self.nickname, chatting_text)
+            self.client.SendData(pack) 
+            
+        else:
+            self.text_chat_view.append('오류 : 오프라인 상태 입니다.')
         # 채팅 전송 버튼은 : push_chat_Button
         # 채팅 전송 버튼 옆 박스 : text_chatting_insert
 
     # 1. 화면 그룹
     # 화면 표현 박스 : Webcam_label
     # 화면공유 시작 버튼 (임시 / 추후 제스처로 변경!) : sharing_start_Button
+    def sharing_start(self):
+        self.text_network_view.append('기능 : 화면공유 시작하는 중...')
+        # 화면 공유 조건 코드 작성필요!
+
     # 화면공유 종료 버튼 (임시 / 추후 제스처로 변경!) : sharing_stop_Button
+    def sharing_stop(self):
+        self.text_network_view.append('기능 : 화면공유 종료하는 중...')
+
+
     # 공유화면 수신 버튼 (임시) : receive_start_Button
+    def receive_start(self):
+        self.text_network_view.append('기능 : 공유화면 수신 시작하는 중...')
+    
     # 공유화면 종료 버튼 (임시) : receive_stop_Button
+    def receive_stop(self):
+        self.text_network_view.append('기능 : 공유화면 종료하는 중...') 
+
 
 
     # 2. 접속자 리스트뷰 그룹
     # 접속자 리스트뷰 : person_listView
+    def person_list(self):
+        self.person_listView.append('접속자 리스트 뷰')
+    
     # 원격조정 시작 버튼 : remote_start_Button
+    def remote_start(self):
+        self.text_network_view.append('기능 : 원격조정 시작하는 중...')
+
     # 원격조정 종료 버튼 : remote_stop_Button
+    def remote_stop(self):
+        self.text_network_view.append('기능 : 원격조정 종료하는 중...')
 
 
     # 3. 파일 리스트뷰 그룹
     # 파일 리스트뷰 : file_listView
+    def file_list(self):
+        self.file_listView.append('파일 리스트 뷰')
+
     # 파일 전송 : file_send_Button
+    def file_send(self):
+        self.text_network_view.append('기능 : 파일전송 기능 선택')
+
     # 파일 다운로드 : file_download_Button
+    def file_download(self):
+        self.text_network_view.append('기능 : 파일다운로드 기능 선택')
+
+
+
+    # 이외. help! 도움!
+    def help_button(self):
+        # self.app_text_view.append('App : Help!')
+        self.help_active.show()
 
 
 
