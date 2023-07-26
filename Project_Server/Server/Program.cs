@@ -45,6 +45,11 @@ namespace Server
                 byte[] bytes = Encoding.UTF8.GetBytes(sp1[1]);
                 Control.Instance.ScreenShare(sock, bytes);
             }
+            else if (sp1[0].Equals(Packet.Sendremote))
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(sp1[1]);
+                Control.Instance.RemoteControl(sock, bytes);
+            }
         }
 
         public void Run()
