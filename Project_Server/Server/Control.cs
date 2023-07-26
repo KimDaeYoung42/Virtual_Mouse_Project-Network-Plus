@@ -72,6 +72,16 @@ namespace Server
             string pack = Packet.SendByte_ACK(bytes);
             server.SendAllData(sock, pack, pack.Length);
         }
+
+        public void RemoteControl(Socket sock, byte[] bytes)
+        {
+            //1. 수신 데이터 처리
+            Console.WriteLine("원격 제어, {0}", bytes);
+
+            //2. 응답패킷 생성 및 전송
+            string pack = Packet.SendRemote_ACK(bytes);
+            server.SendAllData(sock, pack, pack.Length);
+        }
         #endregion
 
     }
