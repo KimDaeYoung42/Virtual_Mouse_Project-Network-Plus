@@ -3,6 +3,7 @@ import struct
 import socket
 import threading
 
+
 class Client:
     # 생성자
     def __init__(self, ip, port):
@@ -32,11 +33,11 @@ class Client:
         except Exception as e:
             print(f"Error occurred while opening the client : {e}")
             return False
-        
+
     def close(self):
         self.sock.close()
         self.in_running = False
-        
+
     def recv_thread(self):
         data = None
         while self.in_running:
@@ -45,8 +46,7 @@ class Client:
 
             msg = data.decode("utf-8").strip('\0')
             self.recv_del(msg)
-            
-    
+
     # 데이터 송/수신
     def SendData(self, msg):
         buffer = msg.encode('utf-8')
@@ -54,9 +54,9 @@ class Client:
 
     def send_data(self, data):
         try:
-            total = 0           # 보낸크기
-            size = len(data)        # 보낼크기
-            left_data = size    # 남은크기
+            total = 0  # 보낸크기
+            size = len(data)  # 보낼크기
+            left_data = size  # 남은크기
 
             # 1) 전송할 데이터의 크기 전달
             data_size = struct.pack('I', size)
@@ -69,7 +69,6 @@ class Client:
                 left_data -= ret
         except Exception as e:
             print(e)
-        
 
     def RecvData(self, data):
         try:
@@ -94,7 +93,7 @@ class Client:
                 left_data -= len(recv_data)
 
             return data
-        
+
         except Exception as e:
             print(e)
             return None

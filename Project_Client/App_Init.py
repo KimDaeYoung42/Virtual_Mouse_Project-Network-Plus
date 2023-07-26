@@ -66,8 +66,6 @@ class App_Control(QMainWindow):
         self.action_Notepad.triggered.connect(self.notepad_tool)
         self.action_help.triggered.connect(self.help_button)
 
-
-
     # 사용자 버튼 클릭시
     def start_user(self):
         # self.net_connect_box()

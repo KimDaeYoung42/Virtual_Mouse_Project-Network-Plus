@@ -24,48 +24,48 @@ Sendremote_ACK = "SENDREMOTE_ACK"
 # Client -> Server 전송 패킷 만드는 부분
 
 # 로그인 ( 서버에 접속시 접속자의 이름을 알림 )
-def LogIn(self, name):
-    self.pack = ''
+def LogIn(name):
+    pack = ''
 
-    self.pack += Login + '@'
-    self.pack += name
+    pack += Login + '@'
+    pack += name
 
-    return self.pack
+    return pack
 
 # 채팅 ( 메시지 전송, 이름과 메시지 )
-def ShortMessage(self, name, msg):
-    self.pack = ''
+def ShortMessage(name, msg):
+    pack = ''
 
-    self.pack += ShortMessage + '@'
-    self.pack += name + '#'
-    self.pack += msg
+    pack += ShortMessage + '@'
+    pack += name + '#'
+    pack += msg
 
-    return self.pack
+    return pack
 
 # 파일 전송 ( 파일 이름과 파일의 크기 )
-def SendFile(self, filename, size):
-    self.pack = ''
+def SendFile(filename, size):
+    pack = ''
 
-    self.pack += SendFile + '@'
-    self.pack += filename + '#'
-    self.pack += size
+    pack += SendFile + '@'
+    pack += filename + '#'
+    pack += size
 
-    return self.pack
+    return pack
 
 # 화면 공유 ( 클라의 화면 BitMap을 byte배열로 전환해서 전송 )
-def SendByte(self, bytes):
-    self.pack = ''
+def SendByte(bytes):
+    pack = ''
 
-    self.pack += Sendbyte + '@'
-    self.pack += bytes
+    pack += Sendbyte + '@'
+    pack += bytes
 
-    return self.pack
+    return pack
 
 # 원격 제어 ( 입력된 키 인식을 byte배열로 전환해서 전송 )
-def SendRomte(self, bytes):
-    self.pack = ''
+def SendRomte(bytes):
+    pack = ''
 
-    self.pack += Sendremote + '@'
-    self.pack += bytes
+    pack += Sendremote + '@'
+    pack += bytes
 
-    return self.pack
+    return pack
