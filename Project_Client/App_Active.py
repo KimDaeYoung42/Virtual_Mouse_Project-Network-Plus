@@ -71,8 +71,9 @@ class Active_Window(QMainWindow):
         # 네트워크 관련
         self.network_read_data()
 
+        # 초기화
         self.network_connect_count = False
- 
+        self.chatting_count = False 
     #################################################################################################
 
 
