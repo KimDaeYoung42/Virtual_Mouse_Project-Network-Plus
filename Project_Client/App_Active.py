@@ -1,6 +1,7 @@
 # App_Active.py : 메인 프로그램 관련 코드.
 
 import sys
+import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDesktopWidget, QMessageBox
 from PyQt5.QtCore import Qt, QRect, pyqtSlot
 from PyQt5.uic import loadUi
@@ -10,7 +11,7 @@ from Network_Control import Client
 import Network_Packet
 
 from App_Help import Active_Help
-import icon_toolbar                                 # 삭제 금지! 비활성화상태라도 활성화되어있음!
+import icon_toolbar  # 삭제 금지! 비활성화상태라도 활성화되어있음!
 
 
 class Active_Window(QMainWindow):
@@ -24,18 +25,18 @@ class Active_Window(QMainWindow):
         self.setMinimumSize(1180, 700)
 
         self.help_active = Active_Help()
-        #self.network_read_data()
+        # self.network_read_data()
 
         # 화면 최상단 (임시 / 수정 필요! )
-        self.actionServer_Run.triggered.connect(self.network_view)                  # x
-        self.actionServer_Connect.triggered.connect(self.network_view)              # x
+        self.actionServer_Run.triggered.connect(self.network_view)  # x
+        self.actionServer_Connect.triggered.connect(self.network_view)  # x
         self.actionScreen_Sharing_Start.triggered.connect(self.sharing_start)
         self.actionScreen_Sharing_Stop.triggered.connect(self.sharing_stop)
         self.actionScreen_Receive_Start.triggered.connect(self.receive_start)
         self.actionScreen_Receive_Stop.triggered.connect(self.receive_stop)
         self.actionRemote_Start.triggered.connect(self.remote_start)
         self.actionRemote_Stop.triggered.connect(self.remote_stop)
-        self.actionFile_Report.triggered.connect(self.network_view)                 # x
+        self.actionFile_Report.triggered.connect(self.network_view)  # x
         self.actionFile_Sharing.triggered.connect(self.file_send)
         self.actionFile_Receive.triggered.connect(self.file_download)
         self.actionHelp.triggered.connect(self.help_button)
@@ -171,6 +172,7 @@ class Active_Window(QMainWindow):
             self.client.SendData(pack)
 
             # 로그아웃 진행
+            time.sleep(3)
             self.network_connect_count = False
             self.chatting_count = False
             self.client.close()
@@ -202,7 +204,6 @@ class Active_Window(QMainWindow):
         else:
             self.text_chat_view.append('오류 : 오프라인 상태 입니다.')
 
-
     # 1. 화면 그룹
     # 화면 표현 박스 : Webcam_label
     # 화면공유 시작 버튼 (임시 / 추후 제스처로 변경!) : sharing_start_Button
@@ -214,22 +215,20 @@ class Active_Window(QMainWindow):
     def sharing_stop(self):
         self.text_network_view.append('기능 : 화면공유 종료하는 중...')
 
-
     # 공유화면 수신 버튼 (임시) : receive_start_Button
     def receive_start(self):
         self.text_network_view.append('기능 : 공유화면 수신 시작하는 중...')
-    
+
     # 공유화면 종료 버튼 (임시) : receive_stop_Button
     def receive_stop(self):
-        self.text_network_view.append('기능 : 공유화면 종료하는 중...') 
+        self.text_network_view.append('기능 : 공유화면 종료하는 중...')
 
+        # 2. 접속자 리스트뷰 그룹
 
-
-    # 2. 접속자 리스트뷰 그룹
     # 접속자 리스트뷰 : person_listView
     def person_list(self):
         self.person_listView.append('접속자 리스트 뷰')
-    
+
     # 원격조정 시작 버튼 : remote_start_Button
     def remote_start(self):
         self.text_network_view.append('기능 : 원격조정 시작하는 중...')
@@ -237,7 +236,6 @@ class Active_Window(QMainWindow):
     # 원격조정 종료 버튼 : remote_stop_Button
     def remote_stop(self):
         self.text_network_view.append('기능 : 원격조정 종료하는 중...')
-
 
     # 3. 파일 리스트뷰 그룹
     # 파일 리스트뷰 : file_listView
@@ -252,11 +250,7 @@ class Active_Window(QMainWindow):
     def file_download(self):
         self.text_network_view.append('기능 : 파일다운로드 기능 선택')
 
-
-
     # 이외. help! 도움!
     def help_button(self):
         # self.app_text_view.append('App : Help!')
         self.help_active.show()
-
-

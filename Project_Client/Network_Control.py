@@ -96,9 +96,6 @@ class Client:
                 total += len(recv_data)
                 left_data -= len(recv_data)
 
-            # 수신된 데이터 출력
-            # print("수신된 데이터:", data)
-
             return data
 
         except Exception as e:
