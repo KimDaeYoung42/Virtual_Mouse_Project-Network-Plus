@@ -57,7 +57,7 @@ def ShortMessage(name, msg):
 def SendFile(filename, size):
     pack = ''
 
-    pack += SendFile + '@'
+    pack += Sendfile + '@'
     pack += filename + '#'
     pack += size
 
@@ -77,6 +77,59 @@ def SendRomte(bytes):
     pack = ''
 
     pack += Sendremote + '@'
+    pack += bytes
+
+    return pack
+
+#########################################################################################
+
+# Server -> Client 전송 패킷 만드는 부분
+def LogIn_ACK(name):
+    pack = ''
+    
+    pack += Login_ACK + '@'
+    pack += name
+
+    return pack
+
+def LogOut_ACK(name):
+    pack = ''
+    
+    pack += Logout_ACK + '@'
+    pack += name
+
+    return pack
+
+def ShortMessage_ACK(name, msg):
+    pack = ''
+
+    pack += Shortmessage_ACK + '@'
+    pack += name + '#'
+    pack += msg
+
+    return pack
+
+def SendFile_ACK(filename, size):
+    pack = ''
+
+    pack += Sendfile_ACK + '@'
+    pack += filename + '#'
+    pack += size
+
+    return pack
+
+def SendByte_ACK(bytes):
+    pack = ''
+
+    pack += Sendbyte_ACK + '@'
+    pack + bytes
+
+    return pack
+
+def SendRemote_ACK(bytes):
+    pack = ''
+
+    pack += Sendremote_ACK + '@'
     pack += bytes
 
     return pack
