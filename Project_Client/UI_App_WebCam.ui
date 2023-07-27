@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>950</width>
-    <height>420</height>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QLabel" name="Webcam_label">
+    <widget class="QLabel" name="Webcam_label2">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -113,6 +113,32 @@
       <string>[ 핸드제스처 이벤트 로그뷰 ]</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QPushButton" name="push_webcam_start_button">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>410</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>웹캠 실행</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="push_webcam_stop_button">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>410</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>웹캠 종료</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
