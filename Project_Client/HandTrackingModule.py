@@ -4,19 +4,17 @@ import math
 import numpy as np
 from tensorflow.keras.models import load_model
 
-
 # 손 인식 및 검출파트 (클래스화)
 class HandDetector:
-    def __init__(self, mode=False, max_hands=2, detection_confidence=0.8, tracking_confidence=0.8):
-        self.mode = mode
-        self.max_hands = max_hands
-        self.detection_confidence = detection_confidence
-        self.tracking_confidence = tracking_confidence
-
+    def __init__(self):
         self.mp_hands = mp.solutions.hands
-        self.hands = self.mp_hands.Hands(self.mode, self.max_hands, self.detection_confidence, self.tracking_confidence)
+        self.hands = self.mp_hands.Hands(
+            max_num_hands=1,
+            min_detection_confidence=0.8,
+            min_tracking_confidence=0.8
+            )
         self.mp_draw = mp.solutions.drawing_utils
-        self.tip_ids = [4, 8, 12, 16, 20]  # 손가락 landmark 번호
+        self.tip_ids = [4, 8, 12, 16, 20]   # 손가락 landmark 번호
 
     def find_hands(self, img, draw=True):
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -49,18 +47,19 @@ class HandDetector:
                             self.label = 'right'
 
         return self.lm_list, self.label
-
+    
     # 손을 보고 어떤 제스쳐인지 추측하는 파트 ( LSTM 방식의 학습 모델을 활용)
-    def action_estimation(self, img):
+    def action_estimation(self, img, seq, action_seq, model, actions, seq_length=30, this_action = '?'):
 
-        self.this_action = 'aaaa'
-        actions = ['none', 'move', 'click', 'ok']
-        seq_length = 30
+        # this_action = 'aaaa'
+        # actions = ['none', 'move', 'click', 'ok']
+        # seq_length = 30
 
-        model = load_model('models/model.h5')
+        # model = load_model('models/model.h5')
 
-        seq = []
-        action_seq = []
+        # seq = []
+        # action_seq = []
+
 
         if self.results.multi_hand_landmarks:
             for res in self.results.multi_hand_landmarks:
@@ -69,25 +68,23 @@ class HandDetector:
                     joint[j] = [lm.x, lm.y, lm.z, lm.visibility]
 
                 # Compute angles between joints
-                v1 = joint[[0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 0, 13, 14, 15, 0, 17, 18, 19], :3]  # Parent joint
-                v2 = joint[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], :3]  # Child joint
-                v = v2 - v1  # [20, 3]
+                v1 = joint[[0,1,2,3,0,5,6,7,0,9,10,11,0,13,14,15,0,17,18,19], :3] # Parent joint
+                v2 = joint[[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], :3] # Child joint
+                v = v2 - v1 # [20, 3]
                 # Normalize v
                 v = v / np.linalg.norm(v, axis=1)[:, np.newaxis]
 
                 # Get angle using arcos of dot product
                 angle = np.arccos(np.einsum('nt,nt->n',
-                                            v[[0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18], :],
-                                            v[[1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19], :]))  # [15,]
+                v[[0,1,2,4,5,6,8,9,10,12,13,14,16,17,18],:], 
+                v[[1,2,3,5,6,7,9,10,11,13,14,15,17,18,19],:])) # [15,]
 
-                angle = np.degrees(angle)  # Convert radian to degree
+                angle = np.degrees(angle) # Convert radian to degree
 
                 d = np.concatenate([joint.flatten(), angle])
 
                 seq.append(d)
-
-                print(len(seq))  # seq의 길이가 안늘어난다.....!!   배열의 크기가 늘어나는게 아닌 배열의 값만 바뀜.
-                # 여기를 못지나감. 즉 len(seq) > seq_length
+                
                 if len(seq) < seq_length:
                     continue
 
@@ -109,13 +106,13 @@ class HandDetector:
 
                 # action이 3개 연속일 때
                 if action_seq[-1] == action_seq[-2] == action_seq[-3]:
-                    self.this_action = action
+                    this_action = action
+                
+                cv2.putText(img, f'{this_action.upper()}', org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
 
-                cv2.putText(img, f'{self.this_action.upper()}',
-                            org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)),
-                            fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
+        return this_action
 
-        return self.this_action
+
 
     # 구) 손가락 확인 (초기 핸드트래킹 사용 모듈)
     def fingers_up(self):
