@@ -118,14 +118,12 @@ class Active_Window(QMainWindow):
             # 패킷을 파싱하여 적절한 동작을 한다.
             # 기능별로 함수화 시킬것!
             if sp1[0] == Network_Packet.Login_ACK:
-                # self.user = sp1[1]
                 self.text_chat_view.append(f"{sp1[1]}님께서 입장하였습니다.")
 
             elif sp1[0] == Network_Packet.Logout_ACK:
                 self.text_chat_view.append(f"{sp1[1]}님께서 퇴장하였습니다.")
 
             elif sp1[0] == Network_Packet.Shortmessage_ACK:
-                # sp2 = sp1[1].split('#')
                 self.text_chat_view.append(f"{sp2[0]} : {sp2[1]}")
 
             # 파일 데이터 수신
@@ -167,15 +165,16 @@ class Active_Window(QMainWindow):
 
     def network_disconnect(self):
         if self.network_connect_count:
-            self.network_connect_count = False
-            self.chatting_count = False
-            self.text_network_view.append('네트워크 : 네트워크 연결 종료 되었습니다.')
 
             # 로그아웃 패킷 전송
             pack = Network_Packet.LogOut(self.nickname)
             self.client.SendData(pack)
 
+            # 로그아웃 진행
+            self.network_connect_count = False
+            self.chatting_count = False
             self.client.close()
+            self.text_network_view.append('네트워크 : 네트워크 연결 종료 되었습니다.')
         else:
             self.text_network_view.append('에러 : 이미 네트워크 종료되어 있습니다.')
 

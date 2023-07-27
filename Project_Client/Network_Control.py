@@ -97,7 +97,7 @@ class Client:
                 left_data -= len(recv_data)
 
             # 수신된 데이터 출력
-            print("수신된 데이터:", data)
+            # print("수신된 데이터:", data)
 
             return data
 
