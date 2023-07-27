@@ -1,31 +1,34 @@
 # App_Active.py : 메인 프로그램 관련 코드.
 
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDesktopWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDesktopWidget, QMessageBox
 from PyQt5.QtCore import Qt, QRect, pyqtSlot
 from PyQt5.uic import loadUi
-import socket
 
+import socket
 from Network_Control import Client
 import Network_Packet
 
 from App_Help import Active_Help
 import icon_toolbar                                 # 삭제 금지! 비활성화상태라도 활성화되어있음!
 
+
 class Active_Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # self.ip = ''
+        # self.port = 0
         self.nickname = ''
 
-
         # 임시 UI 구성
-        loadUi("UI_App_Active.ui", self)  # 추후 UI 파일 제작 후 적용하기.
+        loadUi("UI_App_Active.ui", self)
         self.setWindowTitle("가상 인터페이스 프로그램")
         self.setGeometry(430, 100, 1180, 700)
+        self.setMinimumSize(1180, 700)
 
         self.help_active = Active_Help()
-
+        #self.network_read_data()
 
         # 화면 최상단 (임시 / 수정 필요! )
         self.actionServer_Run.triggered.connect(self.network_view)                  # x
@@ -66,16 +69,17 @@ class Active_Window(QMainWindow):
         self.receive_start_Button.clicked.connect(self.receive_start)
         self.receive_stop_Button.clicked.connect(self.receive_stop)
         self.remote_start_Button.clicked.connect(self.remote_start)
-        self.remote_stop_Button.clicked.connect(self.remote_stop) 
+        self.remote_stop_Button.clicked.connect(self.remote_stop)
 
         # 네트워크 관련
+        # self.network_box()
         self.network_read_data()
 
         # 초기화
         self.network_connect_count = False
-        self.chatting_count = False 
-    #################################################################################################
+        self.chatting_count = False
 
+        #################################################################################################
 
     # 임시 0. Ip, Port, 접속자명 입력 및 연결&종료
     # 서버 Ip 박스 : text_serverip
@@ -84,8 +88,8 @@ class Active_Window(QMainWindow):
     # 연결 버튼 : push_connect_Button
     # 종료 버튼 : push_disconnect_Button
 
+    # 0. 네트워크 - 편의성 기능 (미리 ip, port 저장된 값 불러오기)
     def network_read_data(self):
-        # 파일에서 데이터 읽기
         try:
             with open("network_data.txt", "r") as file:
                 lines = file.readlines()
@@ -93,10 +97,8 @@ class Active_Window(QMainWindow):
 
                 if num_lines >= 1:
                     self.text_serverip.setPlainText(lines[0].strip())
-
                 if num_lines >= 2:
                     self.text_port.setPlainText(lines[1].strip())
-
                 if num_lines >= 3:
                     self.text_nickname.setPlainText(lines[2].strip())
 
@@ -107,53 +109,58 @@ class Active_Window(QMainWindow):
 
     def Recv_data(self, msg):
         if self.network_connect_count:
-            self.text_network_view.append(f"수신 메시지 : {msg}")
+            # self.text_network_view.append('네트워크 Recv_data 접속 진행 중...')
+            self.text_chat_view.append(f"서버로부터 수신 데이터 : {msg}")
 
             # 받은 패킷을 파싱
             sp1 = msg.split('@')
-        
+
+            # sp1 = self.RecvData.split('@')
+            #sp1 = Client.RecvData.split('@')
+
             # 패킷을 파싱하여 적절한 동작을 한다.
             # 기능별로 함수화 시킬것!
             if sp1[0] == Network_Packet.Shortmessage_ACK:
                 sp2 = sp1[1].split('#')
                 chat = sp2[0] + ' : ' + sp2[1]
                 self.text_chat_view.append(chat)
+
             elif sp1[0] == Network_Packet.Login_ACK:
-                self.text_chat_view.append(f"{sp1[1]} : 입장"))
+                # self.myname = sp1[1]
+                self.text_chat_view.append(f"{sp1[1]} : 입장")
+
         else:
             self.text_chat_view.append('에러 : 네트워크 Recv_data 접속에 실패하였습니다.')
-            
 
-    # ui에 입력한 ip, port, nickname 정보를 가지고 서버 연결하는 코드 작성 필요함!
     def network_connect(self):
         ip = self.text_serverip.toPlainText()
         port = int(self.text_port.toPlainText())
         self.nickname = self.text_nickname.toPlainText()
 
-        # Client생성 및 서버 연결
-        self.client = Client(ip=ip, port=port)
-        self.network_connect_count = self.client.open(self.Recv_data)
-
-        # 로그인 패킷 생성 및 전송
-        if self.network_connect_count:
+        if not self.network_connect_count:
+            self.network_connect_count = True
+            self.chatting_count = True
             self.text_network_view.append('네트워크 : 네트워크 연결되었습니다.')
+
+            # Client생성 및 서버 연결
+            self.client = Client(ip=ip, port=port)
+            self.client.open(self.Recv_data)
+
+            # 로그인 패킷 생성 및 전송
             pack = Network_Packet.LogIn(self.nickname)
             self.client.SendData(pack)
+
         else:
             self.text_network_view.append('에러 : 이미 네트워크 접속되어 있습니다.')
 
     def network_disconnect(self):
         if self.network_connect_count:
-            # 로그아웃 패킷 전송 후 연결 해제
-            pack = Network_Packet.LogOut(self.nickname)
-            self.client.SendData(pack)
-
             self.network_connect_count = False
+            self.chatting_count = False
             self.text_network_view.append('네트워크 : 네트워크 연결 종료 되었습니다.')
             self.client.close()
         else:
-            self.text_network_view.append('에러 : 네트워크에 연결되어 있지 않습니다.')
-
+            self.text_network_view.append('에러 : 이미 네트워크 종료되어 있습니다.')
 
     # 공통 0. 네트워크 이벤트뷰
     # self.text_network_view.append('네트워크 이벤트뷰 테스트')
@@ -165,19 +172,20 @@ class Active_Window(QMainWindow):
         self.text_chat_view.append('채팅 뷰')
 
     def chatting_send(self):
-        if self.network_connect_count:
+        if not self.network_connect_count:
             self.text_chat_view.append('채팅 테스트')
-    
+
             chatting_text = self.text_chatting_insert.toPlainText()
-    
+
             # 로그인 패킷 생성 및 전송
             pack = Network_Packet.ShortMessage(self.nickname, chatting_text)
-            self.client.SendData(pack) 
-            
+            self.client.SendData(pack)
+
+            # 채팅 전송 버튼은 : push_chat_Button
+            # 채팅 전송 버튼 옆 박스 : text_chatting_insert
         else:
             self.text_chat_view.append('오류 : 오프라인 상태 입니다.')
-        # 채팅 전송 버튼은 : push_chat_Button
-        # 채팅 전송 버튼 옆 박스 : text_chatting_insert
+
 
     # 1. 화면 그룹
     # 화면 표현 박스 : Webcam_label
@@ -234,10 +242,5 @@ class Active_Window(QMainWindow):
     def help_button(self):
         # self.app_text_view.append('App : Help!')
         self.help_active.show()
-
-
-
-
-
 
 
