@@ -17,10 +17,6 @@ class Active_Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # self.ip = ''
-        # self.port = 0
-        self.nickname = ''
-
         # 임시 UI 구성
         loadUi("UI_App_Active.ui", self)
         self.setWindowTitle("가상 인터페이스 프로그램")
@@ -79,6 +75,10 @@ class Active_Window(QMainWindow):
         self.network_connect_count = False
         self.chatting_count = False
 
+        # self.ip = ''
+        # self.port = 0
+        self.nickname = ''
+
         #################################################################################################
 
     # 임시 0. Ip, Port, 접속자명 입력 및 연결&종료
@@ -109,25 +109,37 @@ class Active_Window(QMainWindow):
 
     def Recv_data(self, msg):
         if self.network_connect_count:
-            # self.text_network_view.append('네트워크 Recv_data 접속 진행 중...')
-            self.text_chat_view.append(f"서버로부터 수신 데이터 : {msg}")
+            self.text_network_view.append(f"서버로부터 수신 데이터 : {msg}")
 
             # 받은 패킷을 파싱
             sp1 = msg.split('@')
-
-            # sp1 = self.RecvData.split('@')
-            #sp1 = Client.RecvData.split('@')
+            sp2 = sp1[1].split('#')
 
             # 패킷을 파싱하여 적절한 동작을 한다.
             # 기능별로 함수화 시킬것!
-            if sp1[0] == Network_Packet.Shortmessage_ACK:
-                sp2 = sp1[1].split('#')
-                chat = sp2[0] + ' : ' + sp2[1]
-                self.text_chat_view.append(chat)
+            if sp1[0] == Network_Packet.Login_ACK:
+                # self.user = sp1[1]
+                self.text_chat_view.append(f"{sp1[1]}님께서 입장하였습니다.")
 
-            elif sp1[0] == Network_Packet.Login_ACK:
-                # self.myname = sp1[1]
-                self.text_chat_view.append(f"{sp1[1]} : 입장")
+            elif sp1[0] == Network_Packet.Logout_ACK:
+                self.text_chat_view.append(f"{sp1[1]}님께서 퇴장하였습니다.")
+
+            elif sp1[0] == Network_Packet.Shortmessage_ACK:
+                # sp2 = sp1[1].split('#')
+                self.text_chat_view.append(f"{sp2[0]} : {sp2[1]}")
+
+            # 파일 데이터 수신
+            elif sp1[0] == Network_Packet.Sendfile_ACK:
+                self.text_chat_view.append("Sendfile_ACK 메시지 수신")
+            # ???
+            elif sp1[0] == Network_Packet.Sendbyte_ACK:
+                self.text_chat_view.append("Sendbyte_ACK 메시지 수신")
+            # 원격 조정 데이터 수신?
+            elif sp1[0] == Network_Packet.Sendremote_ACK:
+                self.text_chat_view.append("Sendremote_ACK 메시지 수신")
+
+            else:
+                self.text_network_view.append('에러 : 알 수 없는 데이터가 수신되었습니다.')
 
         else:
             self.text_chat_view.append('에러 : 네트워크 Recv_data 접속에 실패하였습니다.')
@@ -158,6 +170,11 @@ class Active_Window(QMainWindow):
             self.network_connect_count = False
             self.chatting_count = False
             self.text_network_view.append('네트워크 : 네트워크 연결 종료 되었습니다.')
+
+            # 로그아웃 패킷 전송
+            pack = Network_Packet.LogOut(self.nickname)
+            self.client.SendData(pack)
+
             self.client.close()
         else:
             self.text_network_view.append('에러 : 이미 네트워크 종료되어 있습니다.')
@@ -172,8 +189,8 @@ class Active_Window(QMainWindow):
         self.text_chat_view.append('채팅 뷰')
 
     def chatting_send(self):
-        if not self.network_connect_count:
-            self.text_chat_view.append('채팅 테스트')
+        if self.network_connect_count:
+            self.text_network_view.append('채팅 메시지를 서버에 전송했습니다.')
 
             chatting_text = self.text_chatting_insert.toPlainText()
 

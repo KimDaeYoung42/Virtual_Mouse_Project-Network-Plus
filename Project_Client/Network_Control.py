@@ -39,10 +39,14 @@ class Client:
         self.in_running = False
 
     def recv_thread(self):
-        data = None
+        data = b""                  # 초기값을 빈 바이트열로 설정
         while self.in_running:
             # 데이터 수신처리
-            data = self.RecvData(data)
+            new_data = self.RecvData(data)
+            if new_data is None:
+                # 새로 받은 데이터가 없으면 루프를 다시 실행
+                continue
+            data = new_data
 
             msg = data.decode("utf-8").strip('\0')
             self.recv_del(msg)
@@ -77,7 +81,7 @@ class Client:
             left_data = 0
 
             # 1) 수신할 데이터 크기 알아내기
-            data_size = self.sock.recv(4)
+            data_size = self.sock.recv(100)
             size = struct.unpack('I', data_size)[0]
             left_data = size
 
@@ -91,6 +95,9 @@ class Client:
                 data += recv_data
                 total += len(recv_data)
                 left_data -= len(recv_data)
+
+            # 수신된 데이터 출력
+            print("수신된 데이터:", data)
 
             return data
 
