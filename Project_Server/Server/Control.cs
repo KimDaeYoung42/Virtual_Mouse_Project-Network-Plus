@@ -43,6 +43,16 @@ namespace Server
             server.SendAllData(sock, pack, pack.Length);
         }
 
+        public void Logout(Socket sock, string name)
+        {
+            //1. 수신 데이터 처리
+            Console.WriteLine("로그아웃 정보, {0}", name);
+
+            //2. 응답패킷 생성 및 전송
+            string pack = Packet.LogOut_ACK(name); 
+            server.SendAllData(sock, pack, pack.Length);
+        }
+
         public void ShortMessage(Socket sock, string name, string msg)
         {
             //1. 수신 데이터 처리
@@ -82,6 +92,7 @@ namespace Server
             string pack = Packet.SendRemote_ACK(bytes);
             server.SendAllData(sock, pack, pack.Length);
         }
+
         #endregion
 
     }

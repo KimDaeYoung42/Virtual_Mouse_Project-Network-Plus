@@ -10,6 +10,7 @@ namespace Server
     {
         // Client -> Server
         public const string Login = "LOGIN";
+        public const string Logout = "LOGOUT";
         public const string Shortmessage = "SHORTMESSAGE";
         public const string Sendfile = "SENDFILE";
         public const string Sendbyte = "SENDBYTE";
@@ -17,6 +18,7 @@ namespace Server
 
         // Server -> Client
         public const string Login_ACK = "LOGIN_ACK";
+        public const string Logout_ACK = "LOGOUT_ACK"; 
         public const string Shortmessage_ACK = "SHORTMESSAGE_ACK";
         public const string Sendfile_ACK = "SENDFILE_ACK";
         public const string Sendbyte_ACK = "SENDBYTE_ACK";
@@ -33,6 +35,19 @@ namespace Server
 
             return packet;
         }
+
+        public static string LogOut_ACK(string name)
+        {
+            string packet = string.Empty;
+
+            packet += Logout_ACK + '@';
+
+            packet += name;
+
+            return packet;
+        }
+
+
         public static string ShortMessage_ACK(string nickname, string msg)
         {
             string packet = string.Empty;

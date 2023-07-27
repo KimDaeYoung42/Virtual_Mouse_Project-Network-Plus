@@ -29,6 +29,11 @@ namespace Server
                 string name = sp1[1];
                 Control.Instance.Login(sock, name);
             }
+            else if (sp1[0].Equals(Packet.Logout))
+            {
+                string name = sp1[1];
+                Control.Instance.Logout(sock, name); 
+            }
             else if (sp1[0].Equals(Packet.Shortmessage))
             {
                 string[] sp2 = sp1[1].Split('#');
@@ -49,7 +54,7 @@ namespace Server
             {
                 byte[] bytes = Encoding.UTF8.GetBytes(sp1[1]);
                 Control.Instance.RemoteControl(sock, bytes);
-            }
+            } 
         }
 
         public void Run()
