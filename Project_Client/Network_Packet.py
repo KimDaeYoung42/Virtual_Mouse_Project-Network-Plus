@@ -9,6 +9,7 @@
 
 # Client -> Server
 Login = "LOGIN"
+Loginlist = "LOGINLIST"
 Logout = "LOGOUT"
 Shortmessage = "SHORTMESSAGE"
 Sendfile = "SENDFILE"
@@ -17,6 +18,7 @@ Sendremote = "SENDREMOTE"
 
 # Server - > Client
 Login_ACK = "LOGIN_ACK"
+Loginlist_ACK = "LOGINLIST_ACK"
 Logout_ACK = "LOGOUT_ACK"
 Shortmessage_ACK = "SHORTMESSAGE_ACK"
 Sendfile_ACK = "SENDFILE_ACK"
@@ -32,6 +34,13 @@ def LogIn(name):
     pack += Login + '@'
     pack += name
 
+    return pack
+
+def LogInList():
+    pack = ''
+
+    pack += Loginlist
+    
     return pack
 
 # 로그아웃 ( 서버 연결 해제 )
@@ -84,55 +93,3 @@ def SendRomte(bytes):
 
     return pack
 
-###############################################################################################
-
-# Server -> Client 전송 패킷 만드는 부분
-def LogIn_ACK(name):
-    pack = ''
-    
-    pack += Login_ACK + '@'
-    pack += name
-
-    return pack
-
-def LogOut_ACK(name):
-    pack = ''
-    
-    pack += Logout_ACK + '@'
-    pack += name
-
-    return pack
-
-def ShortMessage_ACK(name, msg):
-    pack = ''
-
-    pack += Shortmessage_ACK + '@'
-    pack += name + '#'
-    pack += msg
-
-    return pack
-
-def SendFile_ACK(filename, size):
-    pack = ''
-
-    pack += Sendfile_ACK + '@'
-    pack += filename + '#'
-    pack += size
-
-    return pack
-
-def SendByte_ACK(bytes):
-    pack = ''
-
-    pack += Sendbyte_ACK + '@'
-    pack + bytes
-
-    return pack
-
-def SendRemote_ACK(bytes):
-    pack = ''
-
-    pack += Sendremote_ACK + '@'
-    pack += bytes
-
-    return pack

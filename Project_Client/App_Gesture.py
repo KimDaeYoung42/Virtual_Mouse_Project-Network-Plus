@@ -37,8 +37,8 @@ class Active_Webcam(QMainWindow):
         # UI 관련
         loadUi("UI_App_WebCam.ui", self)      # UI 파일 로드
         self.setWindowTitle("가상 인터페이스 프로그램")
-        self.setGeometry(100, 440, 950, 580)
-        self.setMinimumSize(950, 580)
+        self.setGeometry(100, 440, 1210, 580)
+        self.setMinimumSize(1210, 580)
 
         # 웹캠 관련
         # self.cap = None                                                     # 웹캠 객체
@@ -46,6 +46,7 @@ class Active_Webcam(QMainWindow):
 
         self.hand_detector = HandDetector()                                 # 인스턴스 생성.
         self.text_view.append('웹캠 실행 중...')
+        
 
         # 초기화
         self.start_time = 0
@@ -64,6 +65,8 @@ class Active_Webcam(QMainWindow):
 
         self.Window_zoom = 0
         self.Keyboard_count = 0
+
+        self.user_list = []
 
         # 실행할 스레드 수
         self.num_thread = 2
@@ -85,15 +88,13 @@ class Active_Webcam(QMainWindow):
         self.push_webcam_start_button.clicked.connect(self.start_cam)
         self.push_webcam_stop_button.clicked.connect(self.stop_cam)
 
+        # 화면공유 시작/종료 버튼
+        self.sharing_start_Button.clicked.connect(self.screen_sharing_start)
+        self.sharing_stop_Button.clicked.connect(self.screen_sharing_stop)
 
         # 모니터 화면 크기 설정
         self.screen_size = autopy.screen.size()                  # print(screen_size) 1920, 1080 <- 모니터 1대만 사용시 기준
         self.screen_size_x, self.screen_size_y = self.screen_size
-
-        
-
-        
-
 
     def update_frame(self):
 
@@ -115,7 +116,7 @@ class Active_Webcam(QMainWindow):
             action = self.hand_detector.action_estimation(frame, seq, action_seq, model, actions)
 
             if lm_list:
-                # print(label)
+                print(label)
 
                 # 엄지와 검지의 거리를 측정해야함.
                 thumb_tip = lm_list[4]
@@ -124,7 +125,7 @@ class Active_Webcam(QMainWindow):
                 thumb_index_distance = math.sqrt((thumb_tip[1] - index_tip[1]) ** 2 + (thumb_tip[2] - index_tip[2]) ** 2)
                 index_middle_distance = math.sqrt((index_tip[1] - middle_tip[1]) ** 2 + (index_tip[2] - middle_tip[2]) ** 2)
 
-                print(index_middle_distance)
+                # print(index_middle_distance)
 
 
                 # 행동해제 --> action == rock
@@ -153,7 +154,7 @@ class Active_Webcam(QMainWindow):
                         if self.LDclick_count == 0:
                             self.LDclick_count += 1  # 클릭 횟수 증가
                             # self.mouse_Left_DoubleClickEvent()
-                            self.text_view.append('기능 : 더블클릭')
+                            # self.text_view.append('기능 : 더블클릭')
                         else:
                             self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
 
@@ -165,7 +166,7 @@ class Active_Webcam(QMainWindow):
                         if self.Rclick_count == 0 and index_middle_distance < 60:
                             self.Rclick_count += 1  # 클릭 횟수 증가
                             # self.mouse_Right_ClickEnvet()
-                            self.text_view.append('기능 : 우클릭')
+                            # self.text_view.append('기능 : 우클릭')
                         else:
                             self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
                     elif label == 'right':
@@ -174,7 +175,7 @@ class Active_Webcam(QMainWindow):
                             click_start_time = time.time()
                             self.Lclick_count += 1  # 클릭 횟수 증가
                             # self.mouse_Left_ClickEvent()
-                            self.text_view.append('기능 : 좌클릭')
+                            # self.text_view.append('기능 : 좌클릭')
                         else:
                             self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
 
@@ -184,7 +185,7 @@ class Active_Webcam(QMainWindow):
                         # 드래그 다운
                         if not self.dragging:
                             # pyautogui.mouseDown(button='left')
-                            self.text_view.append("드래그 기능 : 좌클릭 상태")
+                            # self.text_view.append("드래그 기능 : 좌클릭 상태")
                             self.dragging = True
 
                         if index_middle_distance < 60:
@@ -192,7 +193,7 @@ class Active_Webcam(QMainWindow):
                             self.text_view.append("드래그 기능 : 드래그 중")
                             # self.mouse_MoveEvent(event=lm_list, screen_size=pyautogui.size())
                         elif index_middle_distance > 60 and self.dragging:
-                            self.text_view.append("드래그 기능 : 드래그 해제 상태")
+                            # self.text_view.append("드래그 기능 : 드래그 해제 상태")
                             # pyautogui.mouseUp(button='left')
                             self.dragging = False  # 드래그 상태 플래그 해제
                             click_elapse_time = 0
@@ -208,7 +209,7 @@ class Active_Webcam(QMainWindow):
                     if label == 'left':
                         if thumb_index_distance > 150 and self.Window_zoom == 0:
                             self.Window_zoom += 1
-                            self.text_view.append('기능 : 윈도우 확대 이벤트 발생')
+                            # self.text_view.append('기능 : 윈도우 확대 이벤트 발생')
 
                             # 원래의 윈도우 창 크기 저장.
                             # window = gw.getActiveWindow()               
@@ -226,7 +227,7 @@ class Active_Webcam(QMainWindow):
 
                         elif thumb_index_distance > 150 and self.Window_zoom == 0:
                             self.Window_zoom += 1
-                            self.text_view.append('기능 : 윈도우 축소 이벤트 발생')
+                            # self.text_view.append('기능 : 윈도우 축소 이벤트 발생')
 
                             # 원래의 윈도우 창 크기 저장.
                             # window = gw.getActiveWindow()
@@ -248,30 +249,30 @@ class Active_Webcam(QMainWindow):
                     # label == right -> 스크롤 올리기 or 내리기 --> 거리를 측정 150이상 -> 올리기, 150이하 -> 내리기
                     elif label == 'right':
                         if self.Scroll_count == 0 and 200 < thumb_index_distance < 300:
-                            self.text_view.append("기능 : 스크롤 확대 이벤트 감지")
+                            # self.text_view.append("기능 : 스크롤 확대 이벤트 감지")
                             # pyautogui.scroll(-20)
                             self.Scroll_count += 1
                         elif self.Scroll_count == 0 and 0 < thumb_index_distance < 100:
-                            self.text_view.append("기능 : 스크롤 축소 이벤트 감지")
+                            # self.text_view.append("기능 : 스크롤 축소 이벤트 감지")
                             # pyautogui.scroll(20)
                             self.Scroll_count += 1
                         elif not self.Scroll_count == 0:
                             self.text_view.append("기능 : 스크롤 이벤트 정지")
-                            self.text_view.append("손가락을 펼치고 다시 제스처 취해야 기능 가능")                    
+                            # self.text_view.append("손가락을 펼치고 다시 제스처 취해야 기능 가능")                    
 
                 # 키보드 키기 / 끄기    action == pinky
                 if action == 'pinky':
                     # labal == right -> 키기
                     if label == 'right':
                         if self.Keyboard_count == 0:
-                            self.text_view.append("기능 : 키보드 실행")
+                            # self.text_view.append("기능 : 키보드 실행")
                             self.Keyboard_count += 1
                             # self.keyboard_on_Event()
             
                     # label == left -> 끄기
                     elif label == 'left':
                         if not self.Keyboard_count == 0:
-                            self.text_view.append("기능 : 키보드 종료")
+                            # self.text_view.append("기능 : 키보드 종료")
                             self.Keyboard_count = 0
                             # self.keyboard_off_Event()
 
@@ -341,7 +342,7 @@ class Active_Webcam(QMainWindow):
 
         if not self.is_connected:
             self.is_connected = True
-            self.text_view.append('네트워크 : 네트워크 연결되었습니다.')
+            self.text_network_view2.append('네트워크에 연결되었습니다.')
 
             # Client생성 및 서버 연결
             self.client = Client(ip=ip, port=port)
@@ -352,7 +353,7 @@ class Active_Webcam(QMainWindow):
             self.client.SendData(pack)
 
         else:
-            self.text_view.append('에러 : 이미 네트워크 접속되어 있습니다.')
+            self.text_network_view2.append('에러 : 이미 네트워크 접속되어 있습니다.')
 
     def network_disconnect(self):
         if self.is_connected:
@@ -366,13 +367,14 @@ class Active_Webcam(QMainWindow):
             self.network_connect_count = False
             self.chatting_count = False
             self.client.close()
-            self.text_network_view.append('네트워크 : 네트워크 연결 종료 되었습니다.')
+            self.text_network_view2.append('네트워크 : 네트워크 연결 종료 되었습니다.')
         else:
-            self.text_network_view.append('에러 : 네트워크에 연결되어 있지 않습니다.')
+            self.text_network_view2.append('에러 : 네트워크에 연결되어 있지 않습니다.')
 
     def Recv_data(self, msg):
-        if self.network_connect_count:
-            self.text_network_view.append(f"서버로부터 수신 데이터 : {msg}")
+        if self.is_connected:
+            self.text_network_view2.append(f"서버로부터 수신 데이터 : {msg}")
+            # 서버로부터 수신 데이터 : LOGIN_ACK@user#System.Collections.Generic.List`1[System.String]
 
             # 받은 패킷을 파싱
             sp1 = msg.split('@')
@@ -380,51 +382,53 @@ class Active_Webcam(QMainWindow):
             # 패킷을 파싱하여 적절한 동작을 한다.
             # 기능별로 함수화 시킬것!
             if sp1[0] == Network_Packet.Login_ACK:
-                self.text_chat_view.append(f"{sp1[1]}님께서 입장하였습니다.")
-
+                sp2 = sp1[1].split('#')
+                self.text_network_view2.append(f"{sp2[0]}님께서 입장하였습니다.")
+            elif sp1[0] == Network_Packet.Loginlist_ACK:
+                self.text_network_view2.append(f"user_list : {sp1[1]}")
             elif sp1[0] == Network_Packet.Logout_ACK:
-                self.text_chat_view.append(f"{sp1[1]}님께서 퇴장하였습니다.")
-
+                self.text_network_view2.append(f"{sp1[1]}님께서 퇴장하였습니다.")
             elif sp1[0] == Network_Packet.Shortmessage_ACK:
                 sp2 = sp1[1].split('#')
-                self.text_chat_view.append(f"{sp2[0]} : {sp2[1]}")
-
+                self.text_network_view2.append(f"{sp2[0]} : {sp2[1]}")
             # 파일 데이터 수신
             elif sp1[0] == Network_Packet.Sendfile_ACK:
-                self.text_chat_view.append("Sendfile_ACK 메시지 수신")
-
-            # 바이트배열 수신(화면공유 기능) 안받아
-            # elif sp1[0] == Network_Packet.Sendbyte_ACK:
-            #     self.text_chat_view.append("Sendbyte_ACK 메시지 수신")      # 1초에 33번옴
-            #     # 받은 bytes를 bitmap으로 변환 -> 화면에 출력
-            #     bytes_data = sp1[1]     # str -> bytes로 변환
-            #     data = bytes_data.encode('utf-8')
-            #     ms = io.BytesIO(data)
-            #     bitmap = Image.open(ms)
-            #     self.Webcam_label.setPixmap(bitmap)
+                self.text_network_view2.append("Sendfile_ACK 메시지 수신")
+            # 바이트배열 수신(화면공유 기능) 
+            elif sp1[0] == Network_Packet.Sendbyte_ACK:
+                self.text_network_view2.append("Sendbyte_ACK 메시지 수신")      # 1초에 33번옴
+                # 받은 bytes를 bitmap으로 변환 -> 화면에 출력
+                # bytes_data = sp1[1]     # str -> bytes로 변환
+                # data = bytes_data.encode('utf-8')
+                # ms = io.BytesIO(data)
+                # bitmap = Image.open(ms)
+                # self.Webcam_label.setPixmap(bitmap)
 
             # 원격 조정 데이터 수신?
             elif sp1[0] == Network_Packet.Sendremote_ACK:
-                self.text_chat_view.append("Sendremote_ACK 메시지 수신")
+                self.text_network_view2.append("Sendremote_ACK 메시지 수신")
 
             else:
-                self.text_network_view.append('에러 : 알 수 없는 데이터가 수신되었습니다.')
+                self.text_network_view2.append('에러 : 알 수 없는 데이터가 수신되었습니다.')
 
         else:
-            self.text_chat_view.append('에러 : 네트워크 Recv_data 접속에 실패하였습니다.')
+            self.text_network_view2.append('에러 : 네트워크 Recv_data 접속에 실패하였습니다.')
 
     def screen_sharing_start(self):
         # self.text_network_view2.append("화면공유 스레드 시작")
-        while self.is_sharing:
+        while self.is_sharing and self.is_connected:
             image = pyautogui.screenshot()
             data = image.tobytes()
             data = zlib.compress(data)
-            # length = len(data)
-            
-            pack = Network_Packet.Sendbyte(data)
-            self.SendAllData(pack)
+            length = len(data)
 
-            time.sleep(0.01)
+            pack = Network_Packet.SendByte(data)
+            self.client.SendData(pack)
+
+            time.sleep(0.03)
+
+    def screen_sharing_stop(self):
+        self.is_sharing = False
 
 
 

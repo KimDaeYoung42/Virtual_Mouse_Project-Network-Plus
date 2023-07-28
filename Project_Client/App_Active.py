@@ -1,19 +1,23 @@
 # App_Active.py : 메인 프로그램 관련 코드.
+
 import sys
-import os
 import time
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDesktopWidget, QMessageBox
+from PyQt5.QtCore import Qt, QRect, pyqtSlot
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QVBoxLayout, QWidget, QPushButton, QDesktopWidget, QMessageBox
-from PyQt5.QtGui import QPixmap, QImage, QScreen
-from PyQt5.QtCore import QTimer
 
 import socket
 from Network_Control import Client
 import Network_Packet
 
+import threading
+import pyautogui
+import io
+from PIL import Image
+import zlib
+
 from App_Help import Active_Help
-import icon_toolbar                                 # 삭제 금지! 비활성화상태라도 활성화되어있음!
+import icon_toolbar  # 삭제 금지! 비활성화상태라도 활성화되어있음!
 
 
 class Active_Window(QMainWindow):
@@ -27,18 +31,18 @@ class Active_Window(QMainWindow):
         self.setMinimumSize(1180, 700)
 
         self.help_active = Active_Help()
-        #self.network_read_data()
+        # self.network_read_data()
 
         # 화면 최상단 (임시 / 수정 필요! )
-        self.actionServer_Run.triggered.connect(self.network_view)                  # x
-        self.actionServer_Connect.triggered.connect(self.network_view)              # x
+        self.actionServer_Run.triggered.connect(self.network_view)  # x
+        self.actionServer_Connect.triggered.connect(self.network_view)  # x
         self.actionScreen_Sharing_Start.triggered.connect(self.sharing_start)
         self.actionScreen_Sharing_Stop.triggered.connect(self.sharing_stop)
         self.actionScreen_Receive_Start.triggered.connect(self.receive_start)
         self.actionScreen_Receive_Stop.triggered.connect(self.receive_stop)
         self.actionRemote_Start.triggered.connect(self.remote_start)
         self.actionRemote_Stop.triggered.connect(self.remote_stop)
-        self.actionFile_Report.triggered.connect(self.network_view)                 # x
+        self.actionFile_Report.triggered.connect(self.network_view)  # x
         self.actionFile_Sharing.triggered.connect(self.file_send)
         self.actionFile_Receive.triggered.connect(self.file_download)
         self.actionHelp.triggered.connect(self.help_button)
@@ -73,7 +77,6 @@ class Active_Window(QMainWindow):
         # 네트워크 관련
         # self.network_box()
         self.network_read_data()
-        self.file_list()
 
         # 초기화
         self.network_connect_count = False
@@ -83,19 +86,19 @@ class Active_Window(QMainWindow):
         # self.port = 0
         self.nickname = ''
 
-        # 화면 캡처 관련 (임시)
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.capture_screen)
-        self.capture_started = False
+        self.is_sharing = False
+        self.screen_size = 0.7
+
+        self.user_list = []
 
         #################################################################################################
 
-        # 임시 0. Ip, Port, 접속자명 입력 및 연결&종료
-        # 서버 Ip 박스 : text_serverip
-        # Port 박스 : text_port
-        # 접속자명 박스 : text_nickname
-        # 연결 버튼 : push_connect_Button
-        # 종료 버튼 : push_disconnect_Button
+    # 임시 0. Ip, Port, 접속자명 입력 및 연결&종료
+    # 서버 Ip 박스 : text_serverip
+    # Port 박스 : text_port
+    # 접속자명 박스 : text_nickname
+    # 연결 버튼 : push_connect_Button
+    # 종료 버튼 : push_disconnect_Button
 
     # 0. 네트워크 - 편의성 기능 (미리 ip, port 저장된 값 불러오기)
     def network_read_data(self):
@@ -122,36 +125,36 @@ class Active_Window(QMainWindow):
 
             # 받은 패킷을 파싱
             sp1 = msg.split('@')
-            sp2 = sp1[1].split('#')
 
             # 패킷을 파싱하여 적절한 동작을 한다.
             # 기능별로 함수화 시킬것!
             if sp1[0] == Network_Packet.Login_ACK:
                 self.text_chat_view.append(f"{sp1[1]}님께서 입장하였습니다.")
 
-                # item = QtWidgets.QListWidgetItem(sp1[1])    # 로그인 한 유저 표시
-                # self.person_listView.addItem(item)
-                self.person_listWidget.addItem(sp1[1])
+            elif sp1[0] == Network_Packet.Loginlist_ACK:
+                self.user_list = []
 
             elif sp1[0] == Network_Packet.Logout_ACK:
                 self.text_chat_view.append(f"{sp1[1]}님께서 퇴장하였습니다.")
 
-                # 로그아웃 처리 (로그아웃 유저 데이터 삭제)
-                for i in range(self.person_listWidget.count()):
-                    item = self.person_listWidget.item(i)
-                    if item.text() == sp1[1]:
-                        self.person_listWidget.takeItem(i)
-                        break
-
             elif sp1[0] == Network_Packet.Shortmessage_ACK:
+                sp2 = sp1[1].split('#')
                 self.text_chat_view.append(f"{sp2[0]} : {sp2[1]}")
 
             # 파일 데이터 수신
             elif sp1[0] == Network_Packet.Sendfile_ACK:
                 self.text_chat_view.append("Sendfile_ACK 메시지 수신")
-            # ???
+
+            # 바이트배열 수신(화면공유 기능)
             elif sp1[0] == Network_Packet.Sendbyte_ACK:
-                self.text_chat_view.append("Sendbyte_ACK 메시지 수신")
+                self.text_chat_view.append("Sendbyte_ACK 메시지 수신")      # 1초에 33번옴
+                # 받은 bytes를 bitmap으로 변환 -> 화면에 출력
+                bytes_data = sp1[1]     # str -> bytes로 변환
+                data = bytes_data.encode('utf-8')
+                ms = io.BytesIO(data)
+                bitmap = Image.open(ms)
+                self.Webcam_label.setPixmap(bitmap)
+
             # 원격 조정 데이터 수신?
             elif sp1[0] == Network_Packet.Sendremote_ACK:
                 self.text_chat_view.append("Sendremote_ACK 메시지 수신")
@@ -180,8 +183,22 @@ class Active_Window(QMainWindow):
             pack = Network_Packet.LogIn(self.nickname)
             self.client.SendData(pack)
 
+            # 로그인 리스트를 달라고 패킷을 보낸다
+            # 스레드를 만들어서 N초에 한번씩 리스트를 갱신하도록한다.
+            self.user_list_thread = threading.Thread(target=self.get_userlist)
+            self.user_list_thread.daemon = True
+            self.user_list_thread.start()
+
         else:
             self.text_network_view.append('에러 : 이미 네트워크 접속되어 있습니다.')
+
+    def get_userlist(self):
+        while True:
+            pack = Network_Packet.LogInlist()
+            self.client.SendData(pack)
+
+            time.sleep(1)
+
 
     def network_disconnect(self):
         if self.network_connect_count:
@@ -199,14 +216,12 @@ class Active_Window(QMainWindow):
         else:
             self.text_network_view.append('에러 : 이미 네트워크 종료되어 있습니다.')
 
-        # 공통 0. 네트워크 이벤트뷰
-        # self.text_network_view.append('네트워크 이벤트뷰 테스트')
-
+    # 공통 0. 네트워크 이벤트뷰
+    # self.text_network_view.append('네트워크 이벤트뷰 테스트')
     def network_view(self):
         self.text_network_view.append('네트워크 이벤트뷰 테스트')
 
-        # 0. 채팅 관련
-
+    # 0. 채팅 관련
     def chatting_view(self):
         self.text_chat_view.append('채팅 뷰')
 
@@ -224,50 +239,49 @@ class Active_Window(QMainWindow):
             # 채팅 전송 버튼 옆 박스 : text_chatting_insert
         else:
             self.text_chat_view.append('오류 : 오프라인 상태 입니다.')
+
     # 1. 화면 그룹
     # 화면 표현 박스 : Webcam_label
     # 화면공유 시작 버튼 (임시 / 추후 제스처로 변경!) : sharing_start_Button
-    def capture_screen(self):
-        if self.capture_started:
-            screen = QApplication.primaryScreen()
-            screenshot = screen.grabWindow(0)
-            pixmap = screenshot.toImage()
-            self.Webcam_label.setPixmap(QPixmap.fromImage(pixmap))
-
     def sharing_start(self):
         self.text_network_view.append('기능 : 화면공유 시작하는 중...')
-        self.capture_started = True
-        self.timer.start(30)  # 100ms 마다 캡처
 
-        # 화면 공유 조건 코드 작성필요!
-        time.sleep(2)
-        self.text_network_view.append('에러 : 화면공유 시작 실패하였습니다.')
+        self.is_sharing = True
 
-        # 화면공유 종료 버튼 (임시 / 추후 제스처로 변경!) : sharing_stop_Button
+        # 화면공유 스레드를 생성 --> 스레드 내부에서 화면공유 패킷을 보냄
+        # 화면공유 --> 화면의 bitmap 데이터를 byte배열로 전환해서 패킷을 보냄
+        thread = threading.Thread(target=self.capture_Thread)
+        thread.daemon = True
+        thread.start()
+
+    def capture_Thread(self):
+        while self.is_sharing:
+            image = pyautogui.screenshot()
+            image = image.resize((int(image.size[0]*(self.screen_size)), int(image.size[1] * (self.screen_size))))
+            data = image.tobytes()
+            data = zlib.compress(data)
+            # 2. 패킷 구성
+            pack = Network_Packet.SendByte(data)
+            # 3 전송
+            self.client.SendData(pack)
+
+            time.sleep(0.03)        # 1초에 33
+
+    # 화면공유 종료 버튼 (임시 / 추후 제스처로 변경!) : sharing_stop_Button
     def sharing_stop(self):
         self.text_network_view.append('기능 : 화면공유 종료하는 중...')
-        self.capture_started = False
-        self.timer.stop()
-
-        time.sleep(2)
-        self.text_network_view.append('에러 : 화면공유 종료 실패하였습니다.')
-        self.text_network_view.append('에러 : 화면공유 기능 중단 되었습니다.')
+        self.is_sharing = False
 
     # 공유화면 수신 버튼 (임시) : receive_start_Button
     def receive_start(self):
         self.text_network_view.append('기능 : 공유화면 수신 시작하는 중...')
-        time.sleep(2)
-        self.text_network_view.append('에러 : 공유화면 수신 실패하였습니다.')
-    
+
     # 공유화면 종료 버튼 (임시) : receive_stop_Button
     def receive_stop(self):
         self.text_network_view.append('기능 : 공유화면 종료하는 중...')
-        time.sleep(2)
-        self.text_network_view.append('에러 : 공유화면 종료 실패하였습니다.')
 
+        # 2. 접속자 리스트뷰 그룹
 
-
-    # 2. 접속자 리스트뷰 그룹
     # 접속자 리스트뷰 : person_listView
     def person_list(self):
         self.person_listView.append('접속자 리스트 뷰')
@@ -276,61 +290,24 @@ class Active_Window(QMainWindow):
     def remote_start(self):
         self.text_network_view.append('기능 : 원격조정 시작하는 중...')
 
-        # 원격 조정할 유저 선택
-        selected_items = self.person_listWidget.selectedItems()
-        if selected_items:
-            selected_item = selected_items[0]
-            index = self.person_listWidget.indexFromItem(selected_item).row()
-            print(self.nickname)
-            print(selected_item)
-            if selected_item == self.nickname:
-                QtWidgets.QMessageBox.warning(self, "선택 오류", "자기 자신을 원격조정할 수 없습니다.")
-            else:
-                QtWidgets.QMessageBox.information(self, "선택 확인", f"{index + 1}번 유저를 선택했습니다.")
-        else:
-            QtWidgets.QMessageBox.warning(self, "선택 오류", "원격 조정할 유저를 선택해주세요.")
-
-        self.text_network_view.append('에러 : 원격조정에 실패하였습니다.')
-
     # 원격조정 종료 버튼 : remote_stop_Button
     def remote_stop(self):
         self.text_network_view.append('기능 : 원격조정 종료하는 중...')
-        time.sleep(2)
-        self.text_network_view.append('에러 : 원격조정 종료 실패하였습니다.')
-
 
     # 3. 파일 리스트뷰 그룹
     # 파일 리스트뷰 : file_listView
     def file_list(self):
-        # self.file_listView.append('파일 리스트 뷰')
-        # folder_path = "/path/to/your/folder"  # 여기에 특정 파일 경로를 입력하세요.
-        desktop_path = os.path.expanduser("~\\Desktop")
-        files = os.listdir(desktop_path)
-        # self.file_listView.addItem(files)
-
-        #for file in files:
-        #    item = QListWidgetItem(file)
-        #    self.file_listView.addItem(item)
-
-
+        self.file_listView.append('파일 리스트 뷰')
 
     # 파일 전송 : file_send_Button
     def file_send(self):
         self.text_network_view.append('기능 : 파일전송 기능 선택')
-        # self.file_list()
-        time.sleep(2)
-        self.text_network_view.append('에러 : 파일전송 실패하였습니다.')
 
     # 파일 다운로드 : file_download_Button
     def file_download(self):
         self.text_network_view.append('기능 : 파일다운로드 기능 선택')
-        time.sleep(2)
-        self.text_network_view.append('에러 : 파일다운로드 실패하였습니다.')
-
 
     # 이외. help! 도움!
     def help_button(self):
         # self.app_text_view.append('App : Help!')
         self.help_active.show()
-
-
