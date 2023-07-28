@@ -10,6 +10,12 @@ import socket
 from Network_Control import Client
 import Network_Packet
 
+import threading
+import pyautogui
+import io
+from PIL import Image
+import zlib
+
 from App_Help import Active_Help
 import icon_toolbar  # 삭제 금지! 비활성화상태라도 활성화되어있음!
 
@@ -80,6 +86,9 @@ class Active_Window(QMainWindow):
         # self.port = 0
         self.nickname = ''
 
+        self.is_sharing = False
+        self.screen_size = 0.7
+
         #################################################################################################
 
     # 임시 0. Ip, Port, 접속자명 입력 및 연결&종료
@@ -114,7 +123,6 @@ class Active_Window(QMainWindow):
 
             # 받은 패킷을 파싱
             sp1 = msg.split('@')
-            sp2 = sp1[1].split('#')
 
             # 패킷을 파싱하여 적절한 동작을 한다.
             # 기능별로 함수화 시킬것!
@@ -125,14 +133,23 @@ class Active_Window(QMainWindow):
                 self.text_chat_view.append(f"{sp1[1]}님께서 퇴장하였습니다.")
 
             elif sp1[0] == Network_Packet.Shortmessage_ACK:
+                sp2 = sp1[1].split('#')
                 self.text_chat_view.append(f"{sp2[0]} : {sp2[1]}")
 
             # 파일 데이터 수신
             elif sp1[0] == Network_Packet.Sendfile_ACK:
                 self.text_chat_view.append("Sendfile_ACK 메시지 수신")
-            # ???
+
+            # 바이트배열 수신(화면공유 기능)
             elif sp1[0] == Network_Packet.Sendbyte_ACK:
-                self.text_chat_view.append("Sendbyte_ACK 메시지 수신")
+                self.text_chat_view.append("Sendbyte_ACK 메시지 수신")      # 1초에 33번옴
+                # 받은 bytes를 bitmap으로 변환 -> 화면에 출력
+                bytes_data = sp1[1]     # str -> bytes로 변환
+                data = bytes_data.encode('utf-8')
+                ms = io.BytesIO(data)
+                bitmap = Image.open(ms)
+                self.Webcam_label.setPixmap(bitmap)
+
             # 원격 조정 데이터 수신?
             elif sp1[0] == Network_Packet.Sendremote_ACK:
                 self.text_chat_view.append("Sendremote_ACK 메시지 수신")
@@ -209,11 +226,32 @@ class Active_Window(QMainWindow):
     # 화면공유 시작 버튼 (임시 / 추후 제스처로 변경!) : sharing_start_Button
     def sharing_start(self):
         self.text_network_view.append('기능 : 화면공유 시작하는 중...')
-        # 화면 공유 조건 코드 작성필요!
+
+        self.is_sharing = True
+
+        # 화면공유 스레드를 생성 --> 스레드 내부에서 화면공유 패킷을 보냄
+        # 화면공유 --> 화면의 bitmap 데이터를 byte배열로 전환해서 패킷을 보냄
+        thread = threading.Thread(target=self.capture_Thread)
+        thread.daemon = True
+        thread.start()
+
+    def capture_Thread(self):
+        while self.is_sharing:
+            image = pyautogui.screenshot()
+            image = image.resize((int(image.size[0]*(self.screen_size)), int(image.size[1] * (self.screen_size))))
+            data = image.tobytes()
+            data = zlib.compress(data)
+            # 2. 패킷 구성
+            pack = Network_Packet.SendByte(data)
+            # 3 전송
+            self.client.SendData(pack)
+
+            time.sleep(0.03)        # 1초에 33
 
     # 화면공유 종료 버튼 (임시 / 추후 제스처로 변경!) : sharing_stop_Button
     def sharing_stop(self):
         self.text_network_view.append('기능 : 화면공유 종료하는 중...')
+        self.is_sharing = False
 
     # 공유화면 수신 버튼 (임시) : receive_start_Button
     def receive_start(self):

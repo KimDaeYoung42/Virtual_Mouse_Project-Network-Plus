@@ -10,8 +10,8 @@ class HandDetector:
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
             max_num_hands=1,
-            min_detection_confidence=0.8,
-            min_tracking_confidence=0.8
+            min_detection_confidence=0.6,
+            min_tracking_confidence=0.6
             )
         self.mp_draw = mp.solutions.drawing_utils
         self.tip_ids = [4, 8, 12, 16, 20]   # 손가락 landmark 번호
@@ -50,16 +50,6 @@ class HandDetector:
     
     # 손을 보고 어떤 제스쳐인지 추측하는 파트 ( LSTM 방식의 학습 모델을 활용)
     def action_estimation(self, img, seq, action_seq, model, actions, seq_length=30, this_action = '?'):
-
-        # this_action = 'aaaa'
-        # actions = ['none', 'move', 'click', 'ok']
-        # seq_length = 30
-
-        # model = load_model('models/model.h5')
-
-        # seq = []
-        # action_seq = []
-
 
         if self.results.multi_hand_landmarks:
             for res in self.results.multi_hand_landmarks:
@@ -109,7 +99,7 @@ class HandDetector:
                     this_action = action
                 
                 cv2.putText(img, f'{this_action.upper()}', org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
-
+        
         return this_action
 
 

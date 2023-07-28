@@ -57,7 +57,7 @@ def ShortMessage(name, msg):
 def SendFile(filename, size):
     pack = ''
 
-    pack += Sendfile + '@'
+    pack += SendFile + '@'
     pack += filename + '#'
     pack += size
 
@@ -65,10 +65,13 @@ def SendFile(filename, size):
 
 # 화면 공유 ( 클라의 화면 BitMap을 byte배열로 전환해서 전송 )
 def SendByte(bytes):
+
+    # bytes -> 문자열로 바꿔서 보내야 할듯?
+    decoded_bytes = bytes.decode('euc-kr', errors='ignore')
     pack = ''
 
     pack += Sendbyte + '@'
-    pack += bytes
+    pack += decoded_bytes
 
     return pack
 
@@ -81,7 +84,7 @@ def SendRomte(bytes):
 
     return pack
 
-#########################################################################################
+###############################################################################################
 
 # Server -> Client 전송 패킷 만드는 부분
 def LogIn_ACK(name):

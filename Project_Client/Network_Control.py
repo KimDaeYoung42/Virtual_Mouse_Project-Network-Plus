@@ -48,12 +48,12 @@ class Client:
                 continue
             data = new_data
 
-            msg = data.decode("utf-8").strip('\0')
+            msg = data.decode('euc_kr').strip('\0')
             self.recv_del(msg)
 
     # 데이터 송/수신
     def SendData(self, msg):
-        buffer = msg.encode('utf-8')
+        buffer = msg.encode('euc_kr')
         self.send_data(buffer)
 
     def send_data(self, data):

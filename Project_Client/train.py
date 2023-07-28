@@ -13,14 +13,18 @@ from tensorflow.keras.models import load_model
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
-actions = ['none', 'move', 'click', 'ok']
+# 필요한 action ---- 주먹, 다핌, 검지중지, 엄지검지, 엄지중지, 엄지소지만, 소지만 ---- 7개
+actions = ['rock', 'paper', 'scissors', 'thumb_index', 'thumb_middle', 'thumb_pinky', 'pinky']
 
 # dataset 로드하는 부분
 data = np.concatenate([
-    np.load('dataset/seq_none_1689745614.npy'),
-    np.load('dataset/seq_move_1689745614.npy'),
-    np.load('dataset/seq_click_1689745614.npy'),
-    np.load('dataset/seq_ok_1689745614.npy')
+    np.load('dataset/seq_rock_1690455738.npy'),
+    np.load('dataset/seq_paper_1690455738.npy'),
+    np.load('dataset/seq_scissors_1690455738.npy'),
+    np.load('dataset/seq_thumb_index_1690455738.npy'),
+    np.load('dataset/seq_thumb_middle_1690455738.npy'),
+    np.load('dataset/seq_thumb_pinky_1690455738.npy'),
+    np.load('dataset/seq_pinky_1690455738.npy')
 ], axis=0)
 
 # print(data.shape) # (x, 30, 100)
@@ -45,8 +49,8 @@ x_train, x_val, y_train, y_val = train_test_split(x_data, y_data, test_size=0.2,
 # x_train.shape[1:3] --->  (None, 30, 99)
 
 model = Sequential([
-    LSTM(64, activation='relu', input_shape=x_train.shape[1:3]),
-    Dense(32, activation='relu'),
+    LSTM(128, activation='relu', input_shape=x_train.shape[1:3]),
+    Dense(64, activation='relu'),
     Dense(len(actions), activation='softmax')
 ])
 
@@ -58,7 +62,7 @@ history = model.fit(
     x_train,
     y_train,
     validation_data=(x_val, y_val),
-    epochs=100,
+    epochs=70,
     callbacks=[
         ModelCheckpoint('models/model.h5', monitor='val_acc', verbose=1, save_best_only=True, mode='auto'),
         ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=50, verbose=1, mode='auto')

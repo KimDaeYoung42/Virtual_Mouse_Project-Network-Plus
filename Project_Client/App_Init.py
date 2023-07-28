@@ -100,9 +100,7 @@ class App_Control(QMainWindow):
         # self.net_connect_box()
         if self.app_start_count == 0:
             self.app_start_count += 1
-            self.app_window.show()
             self.app_webcam.show()
-            self.app_webcam.active_webcam()
         else:
             self.show_error()
 
