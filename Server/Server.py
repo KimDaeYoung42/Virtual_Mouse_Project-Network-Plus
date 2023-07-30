@@ -1,6 +1,7 @@
 import socket
 import sys
 import threading
+import struct
 
 
 class Server:
@@ -9,8 +10,7 @@ class Server:
         self.server = None
         self.sockets = []
 
-        self.port = port
-
+        self.Server_port = port
         self.Init()
 
 
@@ -45,63 +45,75 @@ class Server:
                 print(e)
 
     def WorkThread(self, client):
-        while True:
-            try:
-                data = None
+        try:
+            data = b''
+            while True:
+                msg = ''
                 if self.ReceiveData(client, data):
-                    msg = data.decode("utf-8").strip('\0')
+                    msg = data.decode('utf-8').strip('\0')
                     self.recv_del(client, msg)
                 else:
                     print("수신 데이터 없음")
                     raise Exception("수신 오류")
+        except Exception as e:
+            print(e)
+            self.sockets.remove(client)
+            client.close()
 
-            except Exception as ex:
-                print(ex)
-                self.sockets.remove(client)
-                client.close()
-                break
 
-    # 데이터 송신
+    # 데이터 송신 ( 나에게 데이터를 보낸 클라이언트만 )
     def SendData(self, sock, msg, size):
         bmsg = msg.encode("utf-8")
-        self.SendDataBytes(sock, bmsg, size)
+        self.Send_Data(sock, bmsg, size)
+        ret = sock.Send(bmsg, len(bmsg), 0)
+        print(f'데이터 전송 : {ret}byte')
+        
+    # 연결된 모든 클라이언트에 데이터 송신
+    def SendAllData(self, msg, size):
+        for s in self.sockets:
+            self.SendData(s, msg, size)
 
-    def SendDataBytes(self, sock, data, size):
+    def Send_Data(self, sock, data, _size):
         try:
-            total = 0
-            left_data = size
-            data_size = size.to_bytes(4, byteorder="little")
-            ret = sock.send(data_size)
+            total = 0           # 보낸크기
+            size = _size        # 보낼크기
+            left_data = size    # 남은크기
+
+            # 전송할 데이터 크기 전달
+            data_size = struct.pack('I', size)
+            sock.send(data_size)
+
             while total < size:
-                ret = sock.send(data[total:])
+                ret = sock.send(data[total:], left_data)
                 total += ret
                 left_data -= ret
 
-        except Exception as ex:
-            print(ex)
-
-    def SendAllData(self, msg, size):
-        bmsg = msg.encode("utf-8")
-        for s in self.sockets:
-            self.SendDataBytes(s, bmsg, size)
+        except Exception as e:
+            print(e)
 
     # 데이터 수신
     def ReceiveData(self, sock, data):
         try:
+            total = 0       # 받을 크기
+            size = 0        # 받은 크기
+            left_data = 0   # 남은 크기
+
             data_size = sock.recv(4)
-            size = int.from_bytes(data_size, byteorder="little")
-            data = bytearray(size)
-            total = 0
+            size = struct.unpack('I', data_size)[0]
             left_data = size
+
+            data = b''
+
             while total < size:
-                ret = sock.recv(left_data)
-                if not ret:
+                recv = sock.recv(left_data)
+                if not recv:
                     break
-                data[total:total+len(ret)] = ret
-                total += len(ret)
-                left_data -= len(ret)
-            return True
+                data += recv
+                total += len(recv)
+                left_data -= len(recv)
+
+            return data
 
         except Exception as ex:
             print(ex)
-            return False
+            return None

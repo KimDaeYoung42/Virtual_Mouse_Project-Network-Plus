@@ -1,21 +1,32 @@
-from Server import Server
+import Packet
 
-class Control:
-    _instance = None
+# 수신 메시지에 대한 처리
+def Login(name, server):
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(Control, cls).__new__(cls)
-            cls._instance.Init()
-        return cls._instance
-    
-    def Init(self):
-        self.users = []
-        self.server = Server()
-    
+    # 응답패킷 생성 및 전송
+    pack = Packet.LogIn_ACK(name)
+    server.SendAllData(pack, len(pack))
 
-    
-    def SendServer(self, port):
-        self.server = Server(port)
+    return pack
 
-    # 수신 데이터 처리 및 응답 메서드
+def Logout(name, server):
+
+    # 응답패킷 생성 및 전송
+    pack = Packet.LogOut_ACK(name)
+    server.SendAllData(pack, len(pack))
+
+    return pack
+
+def Shortmessage(name, msg, server):
+    # 응답패킷 생성 및 전송
+    pack = Packet.ShortMessage_ACK(name, msg)
+    server.SendAllData(pack, len(pack))
+
+    return pack
+
+def Sendbytes(bytes, server):
+     # 응답패킷 생성 및 전송
+    pack = Packet.BytesSend_ACK(bytes)
+    server.SendAllData(pack, len(pack))
+
+    return pack

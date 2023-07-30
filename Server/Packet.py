@@ -63,10 +63,8 @@ def FileSend_ACK(filename, size):
 
 def BytesSend_ACK(bytes):
     pack = ''
-
-    decoded_bytes = bytes.decode('eur-kr')
     
     pack += Sendbyte_ACK + '@'
-    pack += decoded_bytes
+    pack += bytes
 
     return pack
