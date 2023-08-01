@@ -25,6 +25,7 @@ Sendfile_ACK = "SENDFILE_ACK"
 Sendbyte_ACK = "SENDBYTE_ACK"
 Sendremote_ACK = "SENDREMOTE_ACK"
 
+
 # Client -> Server 전송 패킷 만드는 부분
 
 # 로그인 ( 서버에 접속시 접속자의 이름을 알림 )
@@ -36,12 +37,6 @@ def LogIn(name):
 
     return pack
 
-def LogInList():
-    pack = ''
-
-    pack += Loginlist
-    
-    return pack
 
 # 로그아웃 ( 서버 연결 해제 )
 def LogOut(name):
@@ -51,6 +46,17 @@ def LogOut(name):
     pack += name
 
     return pack
+
+# 로그인 리스트
+def LogInList(list):
+    pack = ''
+
+    pack += Loginlist_ACK + '@'
+    for name in list:
+        pack += name + '#'
+
+    return pack
+
 
 # 채팅 ( 메시지 전송, 이름과 메시지 )
 def ShortMessage(name, msg):
@@ -62,6 +68,7 @@ def ShortMessage(name, msg):
 
     return pack
 
+
 # 파일 전송 ( 파일 이름과 파일의 크기 )
 def SendFile(filename, size):
     pack = ''
@@ -72,17 +79,18 @@ def SendFile(filename, size):
 
     return pack
 
-# 화면 공유 ( 클라의 화면 BitMap을 byte배열로 전환해서 전송 )
-def SendByte(bytes):
 
+# 화면 공유
+def SendByte(bytes):
     # bytes -> 문자열로 바꿔서 보내야 할듯?
-    decoded_bytes = bytes.decode('euc-kr', errors='ignore')
+    decoded_bytes = bytes.decode('utf-8', errors='ignore')
     pack = ''
 
     pack += Sendbyte + '@'
     pack += decoded_bytes
 
     return pack
+
 
 # 원격 제어 ( 입력된 키 인식을 byte배열로 전환해서 전송 )
 def SendRomte(bytes):
@@ -93,3 +101,73 @@ def SendRomte(bytes):
 
     return pack
 
+
+###############################################################################################
+
+# Server -> Client 전송 패킷 만드는 부분
+def LogIn_ACK(name):
+    pack = ''
+
+    pack += Login_ACK + '@'
+    pack += name
+
+    return pack
+
+def LogInList_ACK(list):
+    pack = ''
+
+    pack += Loginlist_ACK + '@'
+    for name in list:
+        pack += name + '#'
+
+# user1, user2, user3
+
+    # Loginlist_ACK@user1#user2#user3#
+
+    return pack
+
+def LogOut_ACK(name):
+    pack = ''
+
+    pack += Logout_ACK + '@'
+    pack += name
+
+    return pack
+
+
+def ShortMessage_ACK(name, msg):
+    pack = ''
+
+    pack += Shortmessage_ACK + '@'
+    pack += name + '#'
+    pack += msg
+
+    return pack
+
+
+def SendFile_ACK(filename, size):
+    pack = ''
+
+    pack += Sendfile_ACK + '@'
+    pack += filename + '#'
+    pack += size
+
+    return pack
+
+
+def SendByte_ACK(bytes):
+    pack = ''
+
+    pack += Sendbyte_ACK + '@'
+    pack + bytes
+
+    return pack
+
+
+def SendRemote_ACK(bytes):
+    pack = ''
+
+    pack += Sendremote_ACK + '@'
+    pack += bytes
+
+    return pack

@@ -2,7 +2,8 @@
 import struct
 import socket
 import threading
-
+import Network_Packet
+import base64
 
 class Client:
     # 생성자
@@ -48,12 +49,25 @@ class Client:
                 continue
             data = new_data
 
-            msg = data.decode('euc_kr').strip('\0')
+            msg = data.decode('utf-8').strip('\0')
+            # sp1 = msg.split('@')
+            # if sp1[0] == Network_Packet.Sendbyte_ACK:
+            #     decoded_base = base64.b64decode(msg)
+            #     msg = decoded_base.decode('utf-8')
+            #     self.recv_del(msg)
+            # else:
             self.recv_del(msg)
 
     # 데이터 송/수신
     def SendData(self, msg):
-        buffer = msg.encode('euc_kr')
+        buffer = msg.encode('utf-8')
+        # sp1 = msg.split('@')
+        # if sp1[0] == Network_Packet.Sendbyte:
+        #     encoded_base = base64.b64encode(buffer)
+        #     self.send_data(encoded_base)
+        #     print(encoded_base)
+        # buffer = base64.b64encode(msg)
+        # else:
         self.send_data(buffer)
 
     def send_data(self, data):
