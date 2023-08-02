@@ -462,7 +462,13 @@ class Active_Webcam(QMainWindow):
             time.sleep(0.2)
 
     def screen_sharing_stop(self):
-        self.is_sharing = False
+        if self.is_sharing:
+            self.is_sharing = False
+            self.text_network_view1.append('화면공유 종료')
+        else:
+            self.text_network_view1.append('화면 공유중이 아닙니다.')
+
+        
 
     def file_send(self):
         print('파일전송')
