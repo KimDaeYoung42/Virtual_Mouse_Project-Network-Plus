@@ -58,6 +58,7 @@ class Server:
         bmsg = msg.encode('utf-8')
         self.send_data_with_size(sock, bmsg)
 
+
     def send_data_with_size(self, sock, data):
         size = len(data)
         data_size = struct.pack('I', size)
@@ -115,14 +116,20 @@ class Control:
     
     # Server -> Client
     @staticmethod
-    def login_ack(name, server):
-        pack = Packet.LogIn_ACK(name)
+    def login_ack(name, list, server):
+        pack = Packet.LogIn_ACK(name, list)
+        server.send_all_data(pack)
+        return pack
+    
+    @ staticmethod
+    def loginlist_ack(list, server):
+        pack = Packet.LogInList_ACK(list)
         server.send_all_data(pack)
         return pack
     
     @staticmethod
-    def logout_ack(name, server):
-        pack = Packet.LogOut_ACK(name)
+    def logout_ack(name, list, server):
+        pack = Packet.LogOut_ACK(name, list)
         server.send_all_data(pack)
         return pack
     @staticmethod

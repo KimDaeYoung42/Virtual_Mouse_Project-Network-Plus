@@ -51,6 +51,7 @@ class Active_Webcam(QMainWindow):
         # self.cap = None                                                     # 웹캠 객체
         self.is_running = True                                             # 웹캠 실행 여부 flag
         
+        self.hand_detector = HandDetector()
     
         # 초기화
         self.start_time = 0
@@ -383,30 +384,38 @@ class Active_Webcam(QMainWindow):
 
         if tag == PacketTag.Login.value:
             self.text_network_view1.append(f'수신 메시지 : {msg}')
-            self.ret = Control.login_ack(data, self.server)
             self.user_list.append(data)
             self.user_list_view()
-
+            self.ret = Control.login_ack(data, self.user_list, self.server)
+            self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
+            
         elif tag == PacketTag.Logout.value:
             self.text_network_view1.append(f'수신 메시지 : {msg}')
-            self.ret = Control.logout_ack(data, self.server)
             self.user_list.remove(data)
             self.user_list_view()
+            self.ret = Control.logout_ack(data, self.user_list, self.server)
+            self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
+            
 
         elif tag == PacketTag.Shortmessage.value:
             self.text_network_view1.append(f'수신 메시지 : {msg}')
             name, msg = data.split('#', 1)
             self.text_chat_view1.append(f'{name} : {msg}')
             self.ret = Control.short_message_ack(name, msg, self.server)
+            self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
 
         elif tag == PacketTag.Sendbyte.value:
             self.text_network_view1.append(f'수신 메시지 : {tag}@bytes')
             self.ret = Control.send_bytes_ack(data, self.server)
             tag, data = self.ret.split('@', 1)
             self.ret = tag + '@bytes'
+            self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
+        
+        elif tag == PacketTag.Sendfile.value:
+            self.text_network_view1.append(f'수신 메시지 : {msg}')
 
-        self.text_network_view1.append(f'송신 메시지 : {self.ret}')    
-
+        else:
+            self.text_network_view1.append(f'모르는 메시지 수신')
 
     def stop_server(self):
         self.text_network_view1('서버가 종료됩니다.')
@@ -441,15 +450,16 @@ class Active_Webcam(QMainWindow):
 
             # 서버로 전송하기 위한 작업
             data = image.tobytes()
-            data = zlib.compress(data)
+            compress_data = zlib.compress(data)
             length = len(data)
 
             # 화면 전송
-            encoded_data = base64.b64encode(data)
+            encoded_data = base64.b64encode(compress_data)
             pack = Packet.SendByte_ACK(encoded_data)
             self.server.send_all_data(pack)
+            self.text_network_view1.append('화면공유중')
 
-            time.sleep(0.1)
+            time.sleep(0.2)
 
     def screen_sharing_stop(self):
         self.is_sharing = False

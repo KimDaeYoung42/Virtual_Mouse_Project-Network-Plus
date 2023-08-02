@@ -41,7 +41,7 @@ class Packet:
 
     # 로그아웃 ( 서버 연결 해제 )
     @staticmethod
-    def LogOut(name):
+    def LogOut(name, list):
         pack = ''
 
         pack += PacketTag.Logout.value + '@'
@@ -102,11 +102,13 @@ class Packet:
 
     # Server -> Client 전송 패킷 만드는 부분
     @staticmethod
-    def LogIn_ACK(name):
+    def LogIn_ACK(name, list):
         pack = ''
 
         pack += PacketTag.Login_ACK.value + '@'
-        pack += name
+        pack += name + '#'
+        for user in list:
+            pack += user + '$'
 
         return pack
 
@@ -121,11 +123,13 @@ class Packet:
         return pack
     
     @staticmethod
-    def LogOut_ACK(name):
+    def LogOut_ACK(name, list):
         pack = ''
 
         pack += PacketTag.Logout_ACK.value + '@'
-        pack += name
+        pack += name + '#'
+        for user in list:
+            pack += user + '$'
 
         return pack
 
@@ -155,6 +159,6 @@ class Packet:
 
         decoded_bytes = bytes.decode('utf-8', errors='ignore')
         pack += PacketTag.Sendbyte_ACK.value + '@'
-        pack + decoded_bytes
+        pack += decoded_bytes
 
         return pack
