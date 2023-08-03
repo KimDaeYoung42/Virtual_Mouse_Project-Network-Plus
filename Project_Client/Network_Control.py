@@ -61,13 +61,6 @@ class Client:
     # 데이터 송/수신
     def SendData(self, msg):
         buffer = msg.encode('utf-8')
-        # sp1 = msg.split('@')
-        # if sp1[0] == Network_Packet.Sendbyte:
-        #     encoded_base = base64.b64encode(buffer)
-        #     self.send_data(encoded_base)
-        #     print(encoded_base)
-        # buffer = base64.b64encode(msg)
-        # else:
         self.send_data(buffer)
 
     def send_data(self, data):
@@ -95,7 +88,7 @@ class Client:
             left_data = 0
 
             # 1) 수신할 데이터 크기 알아내기
-            data_size = self.sock.recv(100)
+            data_size = self.sock.recv(4)
             size = struct.unpack('I', data_size)[0]
             left_data = size
 

@@ -201,7 +201,7 @@
       <rect>
        <x>20</x>
        <y>390</y>
-       <width>248</width>
+       <width>221</width>
        <height>25</height>
       </rect>
      </property>
@@ -209,14 +209,14 @@
       <item>
        <widget class="QPushButton" name="sharing_start_Button">
         <property name="text">
-         <string>화면공유 시작 (임시)</string>
+         <string>화면공유 시작 </string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="sharing_stop_Button">
         <property name="text">
-         <string>화면공유 종료(임시)</string>
+         <string>화면공유 종료</string>
         </property>
        </widget>
       </item>
@@ -225,24 +225,17 @@
     <widget class="QWidget" name="layoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>430</x>
+       <x>520</x>
        <y>390</y>
-       <width>221</width>
+       <width>131</width>
        <height>25</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <widget class="QPushButton" name="receive_start_Button">
+       <widget class="QPushButton" name="receive_screen_zoom">
         <property name="text">
-         <string>공유화면 수신</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="receive_stop_Button">
-        <property name="text">
-         <string>공유화면 종료</string>
+         <string>공유화면 확대</string>
         </property>
        </widget>
       </item>

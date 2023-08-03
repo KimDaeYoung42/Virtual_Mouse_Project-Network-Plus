@@ -43,17 +43,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
+      <item row="2" column="1">
+       <widget class="QPushButton" name="sharing_start_Button">
         <property name="text">
-         <string>웹캠</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="push_webcam_start_button">
-        <property name="text">
-         <string>웹캠 실행</string>
+         <string>공유 시작</string>
         </property>
        </widget>
       </item>
@@ -68,6 +61,13 @@
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>서버</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="sharing_stop_Button">
+        <property name="text">
+         <string>공유 종료</string>
         </property>
        </widget>
       </item>
@@ -92,38 +92,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="sharing_start_Button">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="push_webcam_start_button">
         <property name="text">
-         <string>공유 시작</string>
+         <string>웹캠 실행</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="sharing_stop_Button">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>공유 종료</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>파일</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="pushButton_1">
-        <property name="text">
-         <string>파일 전송</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="text">
-         <string>파일 수신</string>
+         <string>웹캠</string>
         </property>
        </widget>
       </item>
@@ -283,9 +262,35 @@
        <x>10</x>
        <y>30</y>
        <width>221</width>
-       <height>521</height>
+       <height>491</height>
       </rect>
      </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>530</y>
+       <width>221</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QPushButton" name="user_screen_recive">
+        <property name="text">
+         <string>화면 수신</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="user_screen_recive_stop">
+        <property name="text">
+         <string>수신 중단</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox">
@@ -321,16 +326,16 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
-       <widget class="QPushButton" name="file_send_Button">
+       <widget class="QPushButton" name="file_select_Button">
         <property name="text">
-         <string>파일 전송 </string>
+         <string>파일 선택</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="file_download_Button">
+       <widget class="QPushButton" name="file_send_Button">
         <property name="text">
-         <string>파일 다운로드</string>
+         <string>파일 전송</string>
         </property>
        </widget>
       </item>

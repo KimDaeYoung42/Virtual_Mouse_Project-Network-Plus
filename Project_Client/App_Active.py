@@ -8,7 +8,7 @@ import io
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QVBoxLayout, QWidget, QPushButton, QFileDialog, QDesktopWidget, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QVBoxLayout, QWidget, QPushButton, QFileDialog, QDesktopWidget, QMessageBox
 from PyQt5.QtGui import QPixmap, QImage, QScreen
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from PIL import Image
@@ -17,6 +17,7 @@ import socket
 import threading
 import pyautogui
 from Network_Control import Client
+from App_Active_Screen import Active_Screen
 import Network_Packet
 
 from App_Help import Active_Help
@@ -33,6 +34,8 @@ class Active_Window(QMainWindow):
         self.setGeometry(430, 100, 1180, 700)
         self.setMinimumSize(1180, 700)
 
+        self.screen_window = Active_Screen()
+
         self.help_active = Active_Help()
         #self.network_read_data()
 
@@ -41,8 +44,8 @@ class Active_Window(QMainWindow):
         self.actionServer_Connect.triggered.connect(self.network_view)              # x
         self.actionScreen_Sharing_Start.triggered.connect(self.sharing_start)
         self.actionScreen_Sharing_Stop.triggered.connect(self.sharing_stop)
-        self.actionScreen_Receive_Start.triggered.connect(self.receive_start)
-        self.actionScreen_Receive_Stop.triggered.connect(self.receive_stop)
+        # self.actionScreen_Receive_Start.triggered.connect(self.receive_start)
+        # self.actionScreen_Receive_Stop.triggered.connect(self.receive_stop)
         self.actionRemote_Start.triggered.connect(self.remote_start)
         self.actionRemote_Stop.triggered.connect(self.remote_stop)
         self.actionFile_Report.triggered.connect(self.network_view)                 # x
@@ -54,8 +57,8 @@ class Active_Window(QMainWindow):
         self.actionNetwork_access.triggered.connect(self.network_view)
         self.actionsharing_on.triggered.connect(self.sharing_start)
         self.actionsharing_off.triggered.connect(self.sharing_stop)
-        self.actionreceive_on.triggered.connect(self.receive_start)
-        self.actionreceive_off.triggered.connect(self.receive_stop)
+        # self.actionreceive_on.triggered.connect(self.receive_start)
+        # self.actionreceive_off.triggered.connect(self.receive_stop)
         self.actionremote_setting.triggered.connect(self.remote_start)
         self.actionfile_report.triggered.connect(self.network_view)
         self.actionfile_share.triggered.connect(self.select_file)
@@ -66,14 +69,15 @@ class Active_Window(QMainWindow):
         self.push_chat_Button.clicked.connect(self.chatting_send)
         self.push_connect_Button.clicked.connect(self.network_connect)
         self.push_disconnect_Button.clicked.connect(self.network_disconnect)
+        self.receive_screen_zoom.clicked.connect(self.screen_window.show) ###
         self.file_Button1.clicked.connect(self.select_file)
         self.file_Button2.clicked.connect(self.file_send)
 
         # 임시 버튼 클릭 이벤트 연결
         self.sharing_start_Button.clicked.connect(self.sharing_start)
         self.sharing_stop_Button.clicked.connect(self.sharing_stop)
-        self.receive_start_Button.clicked.connect(self.receive_start)
-        self.receive_stop_Button.clicked.connect(self.receive_stop)
+        # self.receive_start_Button.clicked.connect(self.receive_start)
+        # self.receive_stop_Button.clicked.connect(self.receive_stop)
         # self.remote_start_Button.clicked.connect(self.remote_start)
         # self.remote_stop_Button.clicked.connect(self.remote_stop)
 
@@ -91,12 +95,15 @@ class Active_Window(QMainWindow):
         self.timer = QTimer(self)
         self.sharing_started = False                        # 화면 공유 관련
         self.receive_started = False                        # 화면 수신 관련
+        self.screen_dataset = None
 
         # 파일 전송 및 수신 관련 (추후 파일 경로 변경!)
         self.send_path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
         self.recv_path = r"C:\Users\user\Desktop\file_recv"     # 복사될 파일 경로
         os.chmod(self.recv_path, 0o777)
         # self.file_list()
+
+        self.myname = ''
 
 
 
@@ -168,18 +175,33 @@ class Active_Window(QMainWindow):
             elif sp1[0] == Network_Packet.Sendfile_ACK:
                 self.text_chat_view.append("Sendfile_ACK 메시지 수신")
 
+                sp2 = sp1[1].split('#')
+                file_name = sp2[0]
+                file_data = sp2[1]
+                self.file_download(file_name, file_data)
+
 
             # 화면 데이터 수신
             elif sp1[0] == Network_Packet.Sendbyte_ACK:
-                print(sp1[1])
+                # print(sp1[1])
                 self.receive_started = True
                 self.text_chat_view.append("기능 : 화면 데이터 메시지 수신")
 
                 # 이미지 데이터를 QPixmap으로 변환하여 QLabel에 표시
                 try:
-                    recv_sharing_thread = threading.Thread(target=self.Recv_Screen_Thread, args=(sp1[1],))
-                    recv_sharing_thread.daemon = True
-                    recv_sharing_thread.start()
+                    # screen_img = sp1[1]
+                    #self.Active_Screen.Recv_Screen_Thread(screen_img)
+                    # recv_sharing_thread = threading.Thread(target=Active_Screen.Recv_Screen_Thread, args=(sp1[1],))
+
+                    # 메인 화면
+                    recv_sharing_thread1 = threading.Thread(target=self.Recv_Screen_Thread, args=(sp1[1],))
+                    recv_sharing_thread1.daemon = True
+                    recv_sharing_thread1.start()
+
+                    # 확대 화면 UI 연결
+                    recv_sharing_thread2 = threading.Thread(target=self.screen_window.Recv_Screen_Thread, args=(sp1[1],))
+                    recv_sharing_thread2.daemon = True
+                    recv_sharing_thread2.start()
 
 
                 except Exception as e:
@@ -189,9 +211,13 @@ class Active_Window(QMainWindow):
                     self.text_chat_view.append("에러 : 알 수 없는 화면1 데이터 수신")
 
             # 원격 조정 데이터 수신?
-            elif sp1[0] == Network_Packet.Sendremote_ACK:
-                self.text_chat_view.append("Sendremote_ACK 메시지 수신")
-
+            elif sp1[0] == Network_Packet.REQUEST_SCREEN_ACK:
+                self.text_chat_view.append("REQUEST_SCREEN_ACK 메시지 수신")
+                # 내가 가진 이름과 요청받은 이름이 같을 경우
+                # 서버에게 화면 공유를 해야한다.
+                if self.myname == sp1[1]:
+                    # 화면 공유하기
+                    self.sharing_start()
 
             else:
                 self.text_network_view.append('에러 : 알 수 없는 데이터2가 수신되었습니다.')
@@ -218,6 +244,8 @@ class Active_Window(QMainWindow):
             # 로그인 패킷 생성 및 전송
             pack = Network_Packet.LogIn(self.nickname)
             self.client.SendData(pack)
+
+            self.myname = self.nickname
 
             # 로그인 리스트 패킷
             # pack = Network_Packet.Loginlist()
@@ -273,34 +301,41 @@ class Active_Window(QMainWindow):
     # 1. 화면 그룹
     # 화면공유 시작 버튼 (임시 / 추후 제스처로 변경!)
     def screen_sharing_start(self):
-        self.text_network_view.append("화면공유 스레드 시작")
-        while True:
-            print('화면공유')
+        if self.receive_started == False:
+            self.text_network_view.append("화면공유 스레드 시작")
+            while self.sharing_started:
+                print('화면공유')
 
-            # 모니터 화면 캡처
-            screen_image = pyautogui.screenshot()
+                # 모니터 화면 캡처
+                screen_image = pyautogui.screenshot()
 
-            # PIL의 Image 타입으로 변환 작업 <- 서버 전송 후 수신에서 처리할까 테스트
-            # screen_image = Image.frombytes("RGB", screen_image.size, screen_image.tobytes())
+                # 서버로 전송하기 위한 작업
+                screen_data = screen_image.tobytes()
+                compressed_data = zlib.compress(screen_data)
+                length = len(screen_data)
 
-            # 서버로 전송하기 위한 작업
-            screen_data = screen_image.tobytes()
-            compressed_data = zlib.compress(screen_data)
-            length = len(screen_data)
+                # 화면 전송
+                encoded_data = base64.b64encode(compressed_data)
+                pack = Network_Packet.SendByte(encoded_data)
+                self.client.SendData(pack)
 
-            # 화면 전송
-            encoded_data = base64.b64encode(compressed_data)
-            pack = Network_Packet.SendByte(encoded_data)
-            self.client.SendData(pack)
-            # self.client.send_data(pack)     # utf-8 변환 안하고 전송 작업
+                self.text_network_view.append("화면공유 중...")
 
-            # 화면 표시
-            # 이미지를 PyQt5의 QImage로 변환
-            # qimage = QImage(screen_image.tobytes(), screen_image.size[0], screen_image.size[1], QImage.Format_RGB888)
-            # pixmap = QPixmap.fromImage(qimage)
-            # self.Webcam_label.setPixmap(pixmap)
+                # 화면 표시
+                # 이미지를 PyQt5의 QImage로 변환
+                # 이미지 크기를 640x360으로 조정
+                width, height = 640, 360
+                resized_image = screen_image.resize((width, height), Image.ANTIALIAS)
 
-            time.sleep(0.3)
+                # 화면 표시 파트
+                qimage = QImage(resized_image.tobytes(), width, height, QImage.Format_RGB888)
+                pixmap = QPixmap.fromImage(qimage)
+                self.Webcam_label.setPixmap(pixmap)
+
+                # self.msleep(300)    # 0.3초 지연
+                time.sleep(0.1)
+        else:
+            self.text_network_view.append("에러 : 이미 공유화면 수신하고 있습니다.")
 
     def sharing_start(self):
         if self.network_connect_count:
@@ -333,60 +368,74 @@ class Active_Window(QMainWindow):
 
     def Recv_Screen_Thread(self, img):
         while True:
-            self.text_chat_view.append("기능 : 화면 데이터 메시지222")
+            print("기능 : 화면 데이터 메시지222")
 
-            ## 실제 이미지 데이터 -> UI 출력 파트
-            # img -> 문자열 인코딩-> bytes -> 압축 풀면 이미지 데이터가 나온다 화면에 띄운다
-            data = img.encode('utf-8')
-            decoded_data = base64.b64decode(data)
-            img_data = zlib.decompress(decoded_data)
+            # 데이터 검증 작업
+            if self.screen_dataset is None:
+                # dataset이 비어있는 경우, data를 바로 저장
+                self.screen_dataset = img
+                data_img = self.screen_dataset
+                break
+            else:
+                # img가 이전 데이터와 동일한 경우, 이전 데이터 삭제
+                if img == self.screen_dataset:
+                    self.screen_dataset = None
+                    data_img = None
+                    break
+                # img가 이전 데이터와 다른 경우, data를 저장하고 이전 데이터 삭제
+                else:
+                    # data가 이전 데이터와 다른 경우, data를 저장하고 이전 데이터 삭제
+                    self.screen_dataset = img
+                    data_img = self.screen_dataset
 
-            # decoded_data = base64.b64decode(img)  # 이미지 데이터를 bytes로 변환/ 여기서 예외 발생시 예외 코드로 빠짐
-            # recv_image_data = zlib.decompress(decoded_data)
+                    # 실제 이미지 데이터 -> UI 출력 파트
+                    data = data_img.encode('utf-8')
+                    decoded_data = base64.b64decode(data)
+                    img_data = zlib.decompress(decoded_data)
+                    # self.text_network_view.append("데이터 : base64 디코딩 및 압축 해제 성공하였습니다. ")
 
-            self.text_chat_view.append("데이터 : base64 디코딩 및 압축 해제 성공하였습니다. ")
+                    # 데이터를 UI에 추가하거나 갱신
+                    self.update_screen(img_data)
+                    break
 
-            # Bytes 데이터를 -> PIL의 Image 타입으로 변환 작업
-            # screen_image = Image.frombytes("RGB", (1920, 1080), recv_image_data)
-            screen_image = Image.frombytes("RGB", (1920, 1080), img_data)
+    def update_screen(self, img_data):
+        # Bytes 데이터를 -> PIL의 Image 타입으로 변환 작업
+        screen_image = Image.frombytes("RGB", (1920, 1080), img_data)
 
-            # 이미지 크기를 640x360으로 조정
-            width, height = 640, 360
-            resized_image = screen_image.resize((width, height), Image.ANTIALIAS)
+        # 이미지 크기를 640x360으로 조정
+        width, height = 640, 360
+        resized_image = screen_image.resize((width, height), Image.ANTIALIAS)
 
-            # 화면 표시 파트
-            # qimage = QImage(screen_image.tobytes(), screen_image.size[0], screen_image.size[1], QImage.Format_RGB888)
-            qimage = QImage(resized_image.tobytes(), width, height, QImage.Format_RGB888)
-            pixmap = QPixmap.fromImage(qimage)
-            self.Webcam_label.setPixmap(pixmap)
-
-            time.sleep(0.2)
+        # 화면 표시 파트
+        qimage = QImage(resized_image.tobytes(), width, height, QImage.Format_RGB888)
+        pixmap = QPixmap.fromImage(qimage)
+        self.Webcam_label.setPixmap(pixmap)
 
 
     # 공유화면 수신 버튼 (임시) : receive_start_Button
-    def receive_start(self):
-        if self.network_connect_count:
-            if self.sharing_started == False:
-                self.receive_started = True
-                self.text_network_view.append('기능 : 공유화면 수신 시작하는 중...')
-
-                # 공유화면 수신 관련 코드 작성
-                # 임시
-                self.text_network_view.append('오류 : 공유화면 데이터를 받지 못했습니다.')
-                self.text_network_view.append('에러 : 공유화면 수신 실패하였습니다.')
-
-            else:
-                self.text_network_view.append('오류 : 현재 화면공유하고 있습니다.')
-        else:
-            self.text_network_view.append('오류 : 오프라인 상태 입니다.')
-
-    # 공유화면 종료 버튼 (임시) : receive_stop_Button
-    def receive_stop(self):
-        if self.receive_started:
-            self.receive_started = False
-            self.text_network_view.append('기능 : 공유화면 종료하는 중...')
-        else:
-            self.text_network_view.append('오류 : 이미 공유화면을 수신하고 있지 않습니다.')
+    # def receive_start(self):
+    #     if self.network_connect_count:
+    #         if self.sharing_started == False:
+    #             self.receive_started = True
+    #             self.text_network_view.append('기능 : 공유화면 수신 시작하는 중...')
+    #
+    #             # 공유화면 수신 관련 코드 작성
+    #             # 임시
+    #             self.text_network_view.append('오류 : 공유화면 데이터를 받지 못했습니다.')
+    #             self.text_network_view.append('에러 : 공유화면 수신 실패하였습니다.')
+    #
+    #         else:
+    #             self.text_network_view.append('오류 : 현재 화면공유하고 있습니다.')
+    #     else:
+    #         self.text_network_view.append('오류 : 오프라인 상태 입니다.')
+    #
+    # # 공유화면 종료 버튼 (임시) : receive_stop_Button
+    # def receive_stop(self):
+    #     if self.receive_started:
+    #         self.receive_started = False
+    #         self.text_network_view.append('기능 : 공유화면 종료하는 중...')
+    #     else:
+    #         self.text_network_view.append('오류 : 이미 공유화면을 수신하고 있지 않습니다.')
 
 
 
@@ -454,27 +503,47 @@ class Active_Window(QMainWindow):
                         file_data = file.read()
 
                     # 2. 바이트 데이터를 문자열로 변환하기
-                    file_data_base64 = base64.b64encode(file_data)
+                    based_file_data = base64.b64encode(file_data)
 
                     file_name = os.path.basename(file_path)
-                    file_size = len(file_data)
+                    # file_size = len(file_data)
 
                     # 파일 패킷 생성 및 전송
-                    pack = Network_Packet.SendFile(file_name, file_data_base64, file_size)
+                    pack = Network_Packet.SendFile(file_name, based_file_data)
                     self.client.SendData(pack)
+                    self.text_network_view.append('기능 : 파일이 성공적으로 전달되었습니다.')
 
                 else:
-                    self.text_network_view.append('에러 : 전송할 파일의 경로가 없습니다 (바탕화면 file_send 파일 X)')
+                    self.text_network_view.append('에러 : 전송할 파일의 경로가 없습니다')
             else:
                 self.text_network_view.append('에러 : 전송할 파일을 선택해주세요.')
         else:
             self.text_network_view.append('오류 : 오프라인 상태 입니다.')
 
-    # 파일 다운로드 : file_download_Button
-    def file_download(self):
-        self.text_network_view.append('기능 : 파일다운로드 기능 선택')
-        time.sleep(2)
-        self.text_network_view.append('에러 : 파일다운로드 실패하였습니다.')
+    # 파일 다운로드 버튼 없음.
+    def file_download(self, file_name, file_data):
+        self.text_network_view.append('기능 : 전송받은 파일이 있습니다.')
+
+        try:
+            self.text_network_view.append('기능 : 파일 다운로드 진행 중...')
+            download_path = r"C:\Users\user\Downloads"      # 파일 다운로드 경로
+
+            # 1. 파일 확장자 분리
+            dencode_filedata = base64.b64decode(file_data)
+
+            # 2. 파일 저장
+            save_path = os.path.join(download_path, file_name)
+
+            with open(save_path, 'wb') as file:
+                file.write(dencode_filedata)
+
+            print(f"파일 수신 및 저장 성공: {file_name}")
+            self.text_network_view.append(f"파일 수신 및 저장 성공: {file_name}")
+
+        except Exception as e:
+            print(f"파일 수신 및 저장 중 오류 발생: {e}")
+
+
 
 
     # 이외. help! 도움!
