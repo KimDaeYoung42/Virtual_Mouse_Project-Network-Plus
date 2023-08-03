@@ -15,6 +15,7 @@ class PacketTag(Enum):
     Shortmessage = "SHORTMESSAGE"
     Sendfile = "SENDFILE"
     Sendbyte = "SENDBYTE"
+    Request_Screen = "REQUEST_SCREEN"
 
     # Server - > Client
     Login_ACK = "LOGIN_ACK"
@@ -23,6 +24,7 @@ class PacketTag(Enum):
     Shortmessage_ACK = "SHORTMESSAGE_ACK"
     Sendfile_ACK = "SENDFILE_ACK"
     Sendbyte_ACK = "SENDBYTE_ACK"
+    Request_Screen_ACK = "REQUEST_SCREEN_ACK"
 
 
 # Client -> Server 전송 패킷 만드는 부분
@@ -75,12 +77,12 @@ class Packet:
 
     # 파일 전송 ( 파일 이름과 파일의 크기 )
     @staticmethod
-    def SendFile(filename, size):
+    def SendFile(filename, filedata):
         pack = ''
 
         pack += PacketTag.Sendfile.value + '@'
         pack += filename + '#'
-        pack += size
+        pack += filedata.decode('utf-8')  
 
         return pack
 
@@ -144,14 +146,16 @@ class Packet:
         return pack
 
     @staticmethod
-    def SendFile_ACK(filename, size):
+    def SendFile_ACK(filename, filedata):
         pack = ''
 
+        decoded_filedata = filedata.decode('utf-8', errors='ignore')
         pack += PacketTag.Sendfile_ACK.value + '@'
         pack += filename + '#'
-        pack += size
+        pack += decoded_filedata 
 
         return pack
+
 
     @staticmethod
     def SendByte_ACK(bytes):
@@ -160,5 +164,14 @@ class Packet:
         decoded_bytes = bytes.decode('utf-8', errors='ignore')
         pack += PacketTag.Sendbyte_ACK.value + '@'
         pack += decoded_bytes
+
+        return pack
+    
+    @staticmethod
+    def Reques_Screnn_ACK(name):
+        pack = ''
+
+        pack += PacketTag.Request_Screen_ACK.value + '@'
+        pack += name
 
         return pack

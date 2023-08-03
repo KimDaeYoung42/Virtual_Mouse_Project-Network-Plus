@@ -1,9 +1,10 @@
 # App_Gesture.py : 마우스, 키보드 기능 코드 1번.
 
+import os
 import sys
 import subprocess
 import psutil
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap, QCursor
@@ -18,6 +19,7 @@ from HandTrackingModule import HandDetector
 from Mouse_Module import MouseFunction
 from Server_Control import Server, Control
 from Network_Packet import PacketTag, Packet
+from Recv_Screen import Active_Screen
 
 
 import autopy
@@ -29,6 +31,7 @@ import threading
 import zlib
 import socket
 import base64
+
 
 class ServerProxy:
     def __init__(self, port):
@@ -42,7 +45,7 @@ class Active_Webcam(QMainWindow):
         super().__init__()
 
         # UI 관련
-        loadUi("UI_App_WebCam (Network_Mode).ui", self)      # UI 파일 로드
+        loadUi("UI_App_WebCam (Network_Mode) (1).ui", self)      # UI 파일 로드
         self.setWindowTitle("가상 인터페이스 프로그램")
         # self.setGeometry(100, 440, 1500, 820)
         self.setMinimumSize(1500, 820)
@@ -52,6 +55,7 @@ class Active_Webcam(QMainWindow):
         self.is_running = True                                             # 웹캠 실행 여부 flag
         
         self.hand_detector = HandDetector()
+        self.recv_screen = Active_Screen()
     
         # 초기화
         self.start_time = 0
@@ -90,7 +94,8 @@ class Active_Webcam(QMainWindow):
         # 채팅 전송 버튼
         self.push_chat_Button.clicked.connect(self.short_message)
         
-        # 서버 시작/종료 버튼 
+        # 서버 시작/종료 버튼
+        self.is_connected = False
         self.push_start_Button1.clicked.connect(self.start_server)
         self.push_stop_Button1.clicked.connect(self.stop_server)
         
@@ -106,6 +111,16 @@ class Active_Webcam(QMainWindow):
         self.screen_size = autopy.screen.size()                  # print(screen_size) 1920, 1080 <- 모니터 1대만 사용시 기준
         self.screen_size_x, self.screen_size_y = self.screen_size
         
+        # 파일 선택/전송 버튼
+        self.file_select_Button.clicked.connect(self.select_file)
+        self.file_send_Button.clicked.connect(self.file_send)
+
+        # 유저 리스트 위젯 
+        # self.person_listWidget1.itemClicked.connect(self.on_item_clicked)
+
+        # 공유받을 화면 버튼
+        self.user_screen_recive.clicked.connect(self.request_screen)
+
         self.server_thread = None
         
         self.user_list = []
@@ -298,13 +313,12 @@ class Active_Webcam(QMainWindow):
                         self.text_view.append("기능 : 서버 연결")
                         self.network_connect()
                         # Active_Window.network_connect(Active_Window)
-                        self.is_connected = True
+                        
                     # label == left -> 해제
                     elif label == 'left' and self.is_connected:
                         self.text_view.append("기능 : 서버 연결 해제")
                         self.network_disconnect()
                         # Active_Window.network_disconnect(Active_Window)
-                        self.is_connected = False
                 
                 # 화면 공유 시작 / 해제     action == thumb_ring
                 if action == 'thumb_pinky':
@@ -359,7 +373,8 @@ class Active_Webcam(QMainWindow):
         if self.server_thread and self.server_thread.is_alive():
             self.text_network_view1.append("서버가 이미 실행 중입니다.")
             return
-
+        
+        self.is_connected = True
         self.server_thread = threading.Thread(target=self.run_server)
         self.server_thread.daemon = True
         self.server_thread.start()
@@ -376,7 +391,6 @@ class Active_Webcam(QMainWindow):
         
         self.text_network_view1.append('서버 시작.... 클라이언트 접속 대기중')
         self.server.run(self.server_recv_data)
-        
         
 
     def server_recv_data(self, sock, msg):
@@ -396,7 +410,6 @@ class Active_Webcam(QMainWindow):
             self.ret = Control.logout_ack(data, self.user_list, self.server)
             self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
             
-
         elif tag == PacketTag.Shortmessage.value:
             self.text_network_view1.append(f'수신 메시지 : {msg}')
             name, msg = data.split('#', 1)
@@ -406,19 +419,30 @@ class Active_Webcam(QMainWindow):
 
         elif tag == PacketTag.Sendbyte.value:
             self.text_network_view1.append(f'수신 메시지 : {tag}@bytes')
-            self.ret = Control.send_bytes_ack(data, self.server)
-            tag, data = self.ret.split('@', 1)
-            self.ret = tag + '@bytes'
-            self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
+
+            recv_screen_thread = threading.Thread(target=self.recv_screen.Recv_Screen_Thread, args=(data,))
+            recv_screen_thread.daemon = True
+            recv_screen_thread.start()
+            
+            # self.ret = Control.send_bytes_ack(data, self.server)
+            # tag, data = self.ret.split('@', 1)
+            # self.ret = tag + '@bytes'
+            # self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
         
         elif tag == PacketTag.Sendfile.value:
             self.text_network_view1.append(f'수신 메시지 : {msg}')
+            filename, file_data = data.split('#', 1) 
+            self.recv_file(filename, file_data)
+            # encoded_filedata = file_data.encode('utf-8')
+            # self.ret = Control.send_file_ack(filename, encoded_filedata, self.server)
+
 
         else:
             self.text_network_view1.append(f'모르는 메시지 수신')
 
     def stop_server(self):
         self.text_network_view1('서버가 종료됩니다.')
+        self.is_connected = False
         
     # 채팅 전송버튼
     def short_message(self):
@@ -429,7 +453,7 @@ class Active_Webcam(QMainWindow):
         self.ret = Control.short_message_ack(name, msg, self.server)
         self.text_network_view1(f'송신 메시지 : {self.ret}')
     
-    # 접속자 리스트
+    # 접속자 리스트 갱신
     def user_list_view(self):
         self.person_listWidget1.clear()
         for user in self.user_list:
@@ -459,7 +483,7 @@ class Active_Webcam(QMainWindow):
             self.server.send_all_data(pack)
             self.text_network_view1.append('화면공유중')
 
-            time.sleep(0.2)
+            time.sleep(0.1)
 
     def screen_sharing_stop(self):
         if self.is_sharing:
@@ -468,10 +492,74 @@ class Active_Webcam(QMainWindow):
         else:
             self.text_network_view1.append('화면 공유중이 아닙니다.')
 
+    # 화면 공유 요청
+    def request_screen(self):
+        # 공유받을 화면을 띄움
+        self.recv_screen.show()
         
+        # 유저 리스트 위젯에서 선택된 이름을 가져온다.
+        item = self.person_listWidget1.currentItem()
+        name = item.text()
+        print(name)
 
+        # 그 이름을 클라이언트에게 보낸다.
+        ret = Control.request_screen_ack(name, self.server)
+        # self.text_network_view1(f'송신 메시지 : {self.ret}')
+
+    def select_file(self): 
+        file_path, _ = QFileDialog.getOpenFileName(self, "파일 선택")
+        if file_path:
+            self.file_listView1.addItem(file_path)
+
+    # 파일 받았을 때
+    def recv_file(self, file_name, file_data):
+        try:
+            download_path = r'C:\Users\user\Downloads'  # 파일 다운로드 경로
+
+            # 1. base64 디코딩
+            decoded_filedata = base64.b64decode(file_data)
+
+            # 2. 파일 저장
+            save_path = os.path.join(download_path, file_name)
+
+            with open(save_path, 'wb') as file:
+                file.write(decoded_filedata)
+
+            self.text_network_view1.append(f'{file_name} 저장 성공')
+        except Exception as e:
+            print(f'파일 수신중 오류 발생 : {e}')
+        
+    # 파일 보낼 때
     def file_send(self):
-        print('파일전송')
+        if self.is_connected:
+            self.text_network_view1.append('파일 전송')
+            selected_file = self.file_listView1.currentItem()
+
+            if selected_file:
+                file_path = selected_file.text()
+
+                if os.path.exists(file_path) and os.path.isfile(file_path):
+                    # 1. 파일을 바이트로 변환하기
+                    with open(file_path, 'rb') as file:
+                        file_data = file.read()
+
+                    # 2. 바이트 데이터를 문자열로 변환하기
+                    based_file_data = base64.b64encode(file_data)
+
+                    file_name = os.path.basename(file_path)
+
+                    # 파일 패킷 생성 및 전송
+                    pack = Packet.SendFile_ACK(file_name, based_file_data)
+                    self.server.send_all_data(pack)
+
+                    self.text_network_view1.append(f'송신 메시지 : {pack}')
+                
+                else:
+                    self.text_network_view1.append('파일 경로가 없습니다.')
+            else:
+                self.text_network_view1.append('전송할 파일을 선택해 주세요.')
+        else:
+            self.text_network_view1.append('서버를 시작해 주세요.')
 
 
     ### 마우스 기능 파트 (MouseModule.py에서 핸들 주고받아옴) ###

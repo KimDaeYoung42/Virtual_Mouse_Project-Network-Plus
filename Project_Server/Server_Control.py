@@ -114,6 +114,12 @@ class Control:
         server.send_all_data(pack)
         return pack
     
+    @staticmethod
+    def SendFile(filename, filedata, server):
+        pack = Packet.SendFile(filename, filedata)
+        server.send_all_data(pack)
+        return pack 
+    
     # Server -> Client
     @staticmethod
     def login_ack(name, list, server):
@@ -132,6 +138,7 @@ class Control:
         pack = Packet.LogOut_ACK(name, list)
         server.send_all_data(pack)
         return pack
+    
     @staticmethod
     def short_message_ack(name, msg, server):
         pack = Packet.ShortMessage_ACK(name, msg)
@@ -144,5 +151,17 @@ class Control:
         pack = Packet.SendByte_ACK(bytes_data)
         # pack => SENDBYTE_ACK@bytes, bytes -> not 'str'
         # encoded_data = base64.b64encode(pack)   
+        server.send_all_data(pack)
+        return pack
+    
+    @staticmethod
+    def send_file_ack(filename, filedata, server):
+        pack = Packet.SendFile_ACK(filename, filedata)
+        server.send_all_data(pack)
+        return pack 
+    
+    @staticmethod
+    def request_screen_ack(name, server):
+        pack = Packet.Reques_Screnn_ACK(name)
         server.send_all_data(pack)
         return pack
