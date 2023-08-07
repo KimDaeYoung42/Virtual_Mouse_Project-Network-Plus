@@ -5,7 +5,7 @@ import time, os
 
 # action for ML
 # 필요한 action ---- 주먹, 다핌, 검지중지, 엄지검지, 엄지중지, 엄지소지만, 소지만 ---- 7개
-actions = ['rock', 'paper', 'scissors', 'thumb_index', 'thumb_middle', 'thumb_pinky', 'pinky']
+actions = ['rock', 'paper', 'scissors', 'ring_pinky', 'index_middle_ring', 'thumb_index', 'thumb_pinky', 'index_pinky', 'index_right', 'pinky']
 seq_length = 30
 secs_for_action = 30
 
