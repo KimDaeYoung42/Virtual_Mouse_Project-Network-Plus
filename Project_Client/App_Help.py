@@ -1,4 +1,4 @@
-# 도움말 관련 .py
+# App_Help.py : 도움말 관련
 
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.uic import loadUi

@@ -31,5 +31,7 @@ pyuic5 a.ui -o a.py
 
 * qrc 파일 -> py 파일화
 pyrcc5 toolbar_icon.qrc -o icon_toolbar.py 
+pyrcc5 gesture_iron.qrc -o icon_gesture.py 
 
 import icon_toolbar
+import icon_gesture 

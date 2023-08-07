@@ -92,6 +92,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -246,7 +249,7 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;네트워크 연결&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="statusTip">
-    <string>네트워크 연결 기능</string>
+    <string>사용자 접속 버튼을 눌러주세요</string>
    </property>
   </action>
   <action name="action_NetWork_OFF">
@@ -264,7 +267,7 @@
     <string>네트워크 해제</string>
    </property>
    <property name="statusTip">
-    <string>네트워크 해제 버튼</string>
+    <string>사용자 접속 버튼을 눌러주세요</string>
    </property>
   </action>
   <action name="action_Drawing_Pen">
@@ -308,6 +311,9 @@
   </action>
   <action name="action_Setting">
    <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="icon">

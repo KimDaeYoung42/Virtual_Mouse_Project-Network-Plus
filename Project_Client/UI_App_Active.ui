@@ -368,7 +368,7 @@
    <addaction name="actionreceive_on"/>
    <addaction name="actionreceive_off"/>
    <addaction name="separator"/>
-   <addaction name="actionfile_report"/>
+   <addaction name="actionfile_select"/>
    <addaction name="actionfile_share"/>
    <addaction name="actionfile_recive"/>
    <addaction name="separator"/>
@@ -387,10 +387,10 @@
    </property>
    <widget class="QMenu" name="menuServer_S">
     <property name="title">
-     <string>Server (&amp;S)</string>
+     <string>Network (&amp;N)</string>
     </property>
-    <addaction name="actionServer_Run"/>
-    <addaction name="actionServer_Connect"/>
+    <addaction name="actionNetwork_Connect"/>
+    <addaction name="actionNetwork_Disconnect"/>
    </widget>
    <widget class="QMenu" name="menuMonitor_M">
     <property name="title">
@@ -399,19 +399,19 @@
     <addaction name="actionScreen_Sharing_Start"/>
     <addaction name="actionScreen_Sharing_Stop"/>
     <addaction name="separator"/>
-    <addaction name="actionScreen_Receive_Start"/>
-    <addaction name="actionScreen_Receive_Stop"/>
    </widget>
    <widget class="QMenu" name="menuControl_C">
     <property name="title">
      <string>Control (&amp;C)</string>
     </property>
+    <addaction name="actionRemote_Start_2"/>
+    <addaction name="actionRemote_Stop_2"/>
    </widget>
    <widget class="QMenu" name="menuFile_F">
     <property name="title">
      <string>File (&amp;F)</string>
     </property>
-    <addaction name="actionFile_Report"/>
+    <addaction name="actionFile_Select"/>
     <addaction name="actionFile_Sharing"/>
     <addaction name="actionFile_Receive"/>
    </widget>
@@ -570,7 +570,7 @@
     <string>화면 수신 종료 버튼</string>
    </property>
    <property name="statusTip">
-    <string>화면 수신시 자동으로 수신화면을 보여줍니다.</string>
+    <string>화면 수신 종료가 되면 자동으로 수신 종료됩니다. </string>
    </property>
   </action>
   <action name="actionremote_setting">
@@ -591,7 +591,7 @@
     <string>원격 조정 버튼</string>
    </property>
   </action>
-  <action name="actionfile_report">
+  <action name="actionfile_select">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -625,6 +625,9 @@
    </property>
   </action>
   <action name="actionfile_recive">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="Icon/toolbar_icon.qrc">
      <normaloff>:/icon/file_received.png</normaloff>:/icon/file_received.png</iconset>
@@ -636,7 +639,7 @@
     <string>파일 수신 버튼</string>
    </property>
    <property name="statusTip">
-    <string>파일 수신 버튼</string>
+    <string>파일 수신시 자동으로 download 파일에 저장됩니다.</string>
    </property>
   </action>
   <action name="actionhelp">
@@ -662,9 +665,9 @@
     <string>Server Run</string>
    </property>
   </action>
-  <action name="actionServer_Connect">
+  <action name="actionNetwork_Connect">
    <property name="text">
-    <string>Server Connect</string>
+    <string>Network Connect</string>
    </property>
   </action>
   <action name="actionScreen_Sharing_Start">
@@ -697,9 +700,9 @@
     <string>Remote_Stop</string>
    </property>
   </action>
-  <action name="actionFile_Report">
+  <action name="actionFile_Select">
    <property name="text">
-    <string>File Report</string>
+    <string>File Select</string>
    </property>
   </action>
   <action name="actionFile_Sharing">
@@ -708,6 +711,9 @@
    </property>
   </action>
   <action name="actionFile_Receive">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>File Receive</string>
    </property>
@@ -766,12 +772,39 @@
    </property>
   </action>
   <action name="action_Setting">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="Icon/toolbar_icon.qrc">
      <normaloff>:/icon/settings.png</normaloff>:/icon/settings.png</iconset>
    </property>
    <property name="text">
     <string>action_Setting</string>
+   </property>
+  </action>
+  <action name="actionNetwork_Disconnect">
+   <property name="text">
+    <string>Network Disconnect</string>
+   </property>
+  </action>
+  <action name="actionRemote_Start_2">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Remote Start</string>
+   </property>
+  </action>
+  <action name="actionRemote_Stop_2">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Remote Stop</string>
+   </property>
+   <property name="statusTip">
+    <string/>
    </property>
   </action>
  </widget>
