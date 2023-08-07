@@ -15,7 +15,7 @@ Shortmessage = "SHORTMESSAGE"
 Sendfile = "SENDFILE"
 Sendbyte = "SENDBYTE"
 Sendremote = "SENDREMOTE"
-REQUEST_SCREEN = "REQUEST_SCREEN"
+Request_Screen = "REQUEST_SCREEN"
 
 # Server - > Client
 Login_ACK = "LOGIN_ACK"
@@ -25,7 +25,7 @@ Shortmessage_ACK = "SHORTMESSAGE_ACK"
 Sendfile_ACK = "SENDFILE_ACK"
 Sendbyte_ACK = "SENDBYTE_ACK"
 Sendremote_ACK = "SENDREMOTE_ACK"
-REQUEST_SCREEN_ACK = "REQUEST_SCREEN_ACK"
+Request_Screen_ACK = "REQUEST_SCREEN_ACK"
 
 
 # Client -> Server 전송 패킷 만드는 부분
@@ -162,12 +162,12 @@ def ShortMessage_ACK(name, msg):
 def SendFile_ACK(filename, filedata):
     pack = ''
 
+    decode_filedata = filedata.decode('utf-8', errors='ignore')
     pack += Sendfile + '@'
     pack += filename + '#'
-    pack += filedata.encode('utf-8')
+    pack += decode_filedata
 
     return pack
-
 
 def SendByte_ACK(bytes):
     pack = ''

@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>App_WebCam</class>
  <widget class="QMainWindow" name="App_WebCam">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -145,7 +148,7 @@
        <x>10</x>
        <y>390</y>
        <width>211</width>
-       <height>21</height>
+       <height>31</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
@@ -342,6 +345,37 @@
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="separator"/>
+   <addaction name="action_Network_ON"/>
+   <addaction name="action_NetWork_OFF"/>
+   <addaction name="separator"/>
+   <addaction name="actionsharing_on"/>
+   <addaction name="actionsharing_off"/>
+   <addaction name="separator"/>
+   <addaction name="actionreceive_on"/>
+   <addaction name="actionreceive_off"/>
+   <addaction name="separator"/>
+   <addaction name="actionfile_report"/>
+   <addaction name="actionfile_share"/>
+   <addaction name="actionfile_recive"/>
+   <addaction name="separator"/>
+   <addaction name="action_Setting"/>
+   <addaction name="actionhelp"/>
+   <addaction name="separator"/>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -386,18 +420,28 @@
      <string>Help! (&amp;H)</string>
     </property>
     <addaction name="actionHelp"/>
+    <addaction name="actionProgram_Close"/>
    </widget>
    <widget class="QMenu" name="menu">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>|</string>
     </property>
    </widget>
    <widget class="QMenu" name="menu_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>|</string>
     </property>
    </widget>
    <widget class="QMenu" name="menu_3">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>|</string>
     </property>
@@ -410,32 +454,6 @@
    <addaction name="menu_2"/>
    <addaction name="menuHelp_H"/>
    <addaction name="menu_3"/>
-  </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionNetwork_access"/>
-   <addaction name="separator"/>
-   <addaction name="actionsharing_on"/>
-   <addaction name="actionsharing_off"/>
-   <addaction name="separator"/>
-   <addaction name="actionreceive_on"/>
-   <addaction name="actionreceive_off"/>
-   <addaction name="separator"/>
-   <addaction name="separator"/>
-   <addaction name="actionfile_report"/>
-   <addaction name="actionfile_share"/>
-   <addaction name="actionfile_recive"/>
-   <addaction name="separator"/>
-   <addaction name="actionhelp"/>
-   <addaction name="separator"/>
   </widget>
   <action name="actionmainw_icon1">
    <property name="icon">
@@ -520,6 +538,9 @@
    </property>
   </action>
   <action name="actionreceive_on">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="Icon/toolbar_icon.qrc">
      <normaloff>:/icon/receive_on.png</normaloff>:/icon/receive_on.png</iconset>
@@ -531,10 +552,13 @@
     <string>화면 수신 시작 버튼</string>
    </property>
    <property name="statusTip">
-    <string>화면 수신 시작 버튼</string>
+    <string>화면 수신시 자동으로 수신화면을 보여줍니다.</string>
    </property>
   </action>
   <action name="actionreceive_off">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="Icon/toolbar_icon.qrc">
      <normaloff>:/icon/receive_off.png</normaloff>:/icon/receive_off.png</iconset>
@@ -546,7 +570,7 @@
     <string>화면 수신 종료 버튼</string>
    </property>
    <property name="statusTip">
-    <string>화면 수신 종료 버튼</string>
+    <string>화면 수신시 자동으로 수신화면을 보여줍니다.</string>
    </property>
   </action>
   <action name="actionremote_setting">
@@ -568,6 +592,9 @@
    </property>
   </action>
   <action name="actionfile_report">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="Icon/toolbar_icon.qrc">
      <normaloff>:/icon/file_list.png</normaloff>:/icon/file_list.png</iconset>
@@ -688,6 +715,63 @@
   <action name="actionHelp">
    <property name="text">
     <string>Help!</string>
+   </property>
+  </action>
+  <action name="actionWindow_Capture">
+   <property name="text">
+    <string>Window_Capture</string>
+   </property>
+  </action>
+  <action name="actionNotepad">
+   <property name="text">
+    <string>Notepad</string>
+   </property>
+  </action>
+  <action name="actionNaver_Map">
+   <property name="text">
+    <string>Naver_Map</string>
+   </property>
+  </action>
+  <action name="actionDaum_Map">
+   <property name="text">
+    <string>Daum_Map</string>
+   </property>
+  </action>
+  <action name="actionGoogle_Map">
+   <property name="text">
+    <string>Google_Map</string>
+   </property>
+  </action>
+  <action name="actionProgram_Close">
+   <property name="text">
+    <string>Program_Close</string>
+   </property>
+  </action>
+  <action name="action_NetWork_OFF">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/internet_no.png</normaloff>:/icon/internet_no.png</iconset>
+   </property>
+   <property name="text">
+    <string>action_NetWork_OFF</string>
+   </property>
+  </action>
+  <action name="action_Network_ON">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/internet.png</normaloff>:/icon/internet.png</iconset>
+   </property>
+   <property name="text">
+    <string>action_Network_ON</string>
+   </property>
+  </action>
+  <action name="action_Setting">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/settings.png</normaloff>:/icon/settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>action_Setting</string>
    </property>
   </action>
  </widget>

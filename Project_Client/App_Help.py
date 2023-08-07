@@ -10,4 +10,6 @@ class Active_Help(QMainWindow):
         loadUi("UI_Help_Introduction.ui", self)  # UI 파일 로드
         self.setWindowTitle("Introduction")
         # self.setGeometry(570, 130, 970, 615)
+        self.setMinimumSize(420, 420)
+        self.setMaximumSize(420, 420)
 

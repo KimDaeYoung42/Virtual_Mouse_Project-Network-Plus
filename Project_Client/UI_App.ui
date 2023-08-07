@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>360</height>
+    <height>330</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
       <x>10</x>
       <y>10</y>
       <width>301</width>
-      <height>271</height>
+      <height>241</height>
      </rect>
     </property>
     <property name="title">
@@ -33,9 +33,9 @@
     <widget class="QPushButton" name="push_user_Button">
      <property name="geometry">
       <rect>
-       <x>60</x>
+       <x>50</x>
        <y>200</y>
-       <width>81</width>
+       <width>91</width>
        <height>23</height>
       </rect>
      </property>
@@ -43,25 +43,12 @@
       <string>사용자 접속</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="push_admin_Button">
+    <widget class="QPushButton" name="Button_Exit">
      <property name="geometry">
       <rect>
        <x>160</x>
        <y>200</y>
-       <width>81</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>제어자 접속</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="Button_Exit">
-     <property name="geometry">
-      <rect>
-       <x>60</x>
-       <y>230</y>
-       <width>181</width>
+       <width>91</width>
        <height>23</height>
       </rect>
      </property>
@@ -85,7 +72,7 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>10</y>
+        <y>0</y>
         <width>141</width>
         <height>151</height>
        </rect>

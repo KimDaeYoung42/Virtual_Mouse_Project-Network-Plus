@@ -40,23 +40,30 @@ class Client:
         self.in_running = False
 
     def recv_thread(self):
-        data = b""                  # 초기값을 빈 바이트열로 설정
-        while self.in_running:
-            # 데이터 수신처리
-            new_data = self.RecvData(data)
-            if new_data is None:
-                # 새로 받은 데이터가 없으면 루프를 다시 실행
-                continue
-            data = new_data
+        try:
+            data = b""                  # 초기값을 빈 바이트열로 설정
+            while self.in_running:
+                # 데이터 수신처리
+                new_data = self.RecvData(data)
+                if new_data is None:
+                    # 새로 받은 데이터가 없으면 루프를 다시 실행
+                    continue
+                data = new_data
 
-            msg = data.decode('utf-8').strip('\0')
-            # sp1 = msg.split('@')
-            # if sp1[0] == Network_Packet.Sendbyte_ACK:
-            #     decoded_base = base64.b64decode(msg)
-            #     msg = decoded_base.decode('utf-8')
-            #     self.recv_del(msg)
-            # else:
-            self.recv_del(msg)
+                msg = data.decode('utf-8').strip('\0')
+                # sp1 = msg.split('@')
+                # if sp1[0] == Network_Packet.Sendbyte_ACK:
+                #     decoded_base = base64.b64decode(msg)
+                #     msg = decoded_base.decode('utf-8')
+                #     self.recv_del(msg)
+                # else:
+
+                print("recv_thread msg 통과")
+                self.recv_del(msg)
+
+        except Exception as e:
+            print(e)
+            self.close()
 
     # 데이터 송/수신
     def SendData(self, msg):

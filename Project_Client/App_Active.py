@@ -13,6 +13,7 @@ from PyQt5.QtGui import QPixmap, QImage, QScreen
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from PIL import Image
 
+import tracemalloc
 import socket
 import threading
 import pyautogui
@@ -23,6 +24,8 @@ import Network_Packet
 from App_Help import Active_Help
 import icon_toolbar                                 # 삭제 금지! 비활성화상태라도 활성화되어있음!
 
+# tracemalloc 활성화
+tracemalloc.start()
 
 class Active_Window(QMainWindow):
     def __init__(self):
@@ -33,11 +36,12 @@ class Active_Window(QMainWindow):
         self.setWindowTitle("가상 인터페이스 프로그램")
         self.setGeometry(430, 100, 1180, 700)
         self.setMinimumSize(1180, 700)
+        self.setMaximumSize(1180, 700)
 
         self.screen_window = Active_Screen()
 
         self.help_active = Active_Help()
-        #self.network_read_data()
+        # self.network_read_data()
 
         # 화면 최상단 (임시 / 수정 필요! )
         self.actionServer_Run.triggered.connect(self.network_view)                  # x
@@ -69,7 +73,7 @@ class Active_Window(QMainWindow):
         self.push_chat_Button.clicked.connect(self.chatting_send)
         self.push_connect_Button.clicked.connect(self.network_connect)
         self.push_disconnect_Button.clicked.connect(self.network_disconnect)
-        self.receive_screen_zoom.clicked.connect(self.screen_window.show) ###
+        self.receive_screen_zoom.clicked.connect(self.screen_window.show)
         self.file_Button1.clicked.connect(self.select_file)
         self.file_Button2.clicked.connect(self.file_send)
 
@@ -98,13 +102,16 @@ class Active_Window(QMainWindow):
         self.screen_dataset = None
 
         # 파일 전송 및 수신 관련 (추후 파일 경로 변경!)
-        self.send_path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
-        self.recv_path = r"C:\Users\user\Desktop\file_recv"     # 복사될 파일 경로
-        os.chmod(self.recv_path, 0o777)
+        self.file_widget_Item_add()
+        self.file_name = None
+        self.file_data = None
+
+        # self.send_path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
+        # self.recv_path = r"C:\Users\user\Desktop\file_recv"     # 복사될 파일 경로
+        # os.chmod(self.recv_path, 0o777)
         # self.file_list()
 
         self.myname = ''
-
 
 
         #################################################################################################
@@ -137,92 +144,101 @@ class Active_Window(QMainWindow):
 
     def Recv_data(self, msg):
         if self.network_connect_count:
-            self.text_network_view.append(f"서버로부터 수신 데이터 : {msg}")
+            try:
+                self.network_connect_count = True
+                # self.text_network_view.append(f"서버로부터 수신 데이터 : {msg}")
 
-            # 받은 패킷을 파싱
-            sp1 = msg.split('@', 1)
-            # sp1[0] -> SENDBYTE_ACK
-            # sp1[1] -> bytes
+                # 받은 패킷을 파싱
+                sp1 = msg.split('@', 1)
+                # sp1[0] -> SENDBYTE_ACK
+                # sp1[1] -> bytes
 
-            # 패킷을 파싱하여 적절한 동작을 한다.
-            # 기능별로 함수화 시킬것!
-            if sp1[0] == Network_Packet.Login_ACK:
-                sp2 = sp1[1].split('#')
-                self.text_chat_view.append(f"{sp2[0]}님께서 입장하였습니다.")
-                self.person_listWidget.clear()
+                # 패킷을 파싱하여 적절한 동작을 한다.
+                # 기능별로 함수화 시킬것!
+                if sp1[0] == Network_Packet.Login_ACK:
+                    sp2 = sp1[1].split('#')
+                    self.text_chat_view.append(f"{sp2[0]}님께서 입장하였습니다.")
+                    self.person_listWidget.clear()
 
-                sp3 = sp2[1].split('$')
-                for list_name in sp3:
-                    self.person_listWidget.addItem(list_name)
-                # item = QtWidgets.QListWidgetItem(sp1[1])    # 로그인 한 유저 표시
-                # self.person_listView.addItem(item)
-                # self.person_listWidget.addItem(sp1[1])
+                    sp3 = sp2[1].split('$')
+                    for list_name in sp3:
+                        self.person_listWidget.addItem(list_name)
+                    # item = QtWidgets.QListWidgetItem(sp1[1])    # 로그인 한 유저 표시
+                    # self.person_listView.addItem(item)
+                    # self.person_listWidget.addItem(sp1[1])
 
-            elif sp1[0] == Network_Packet.Logout_ACK:
-                sp2 = sp1[1].split('#')
-                self.text_chat_view.append(f"{sp2[0]}님께서 퇴장하였습니다.")
-                self.person_listWidget.clear()
+                elif sp1[0] == Network_Packet.Logout_ACK:
+                    sp2 = sp1[1].split('#')
+                    self.text_chat_view.append(f"{sp2[0]}님께서 퇴장하였습니다.")
+                    self.person_listWidget.clear()
 
-                sp3 = sp2[1].split('$')
-                for list_name in sp3:
-                    self.person_listWidget.addItem(list_name)
+                    sp3 = sp2[1].split('$')
+                    for list_name in sp3:
+                        self.person_listWidget.addItem(list_name)
 
-            elif sp1[0] == Network_Packet.Shortmessage_ACK:
-                sp2 = sp1[1].split('#')
-                self.text_chat_view.append(f"{sp2[0]} : {sp2[1]}")
+                elif sp1[0] == Network_Packet.Shortmessage_ACK:
+                    sp2 = sp1[1].split('#')
+                    self.text_chat_view.append(f"{sp2[0]} : {sp2[1]}")
 
-            # 파일 데이터 수신
-            elif sp1[0] == Network_Packet.Sendfile_ACK:
-                self.text_chat_view.append("Sendfile_ACK 메시지 수신")
+                # 파일 데이터 수신
+                elif sp1[0] == Network_Packet.Sendfile_ACK:
+                    self.text_network_view.append("Sendfile_ACK 메시지 수신")
 
-                sp2 = sp1[1].split('#')
-                file_name = sp2[0]
-                file_data = sp2[1]
-                self.file_download(file_name, file_data)
+                    sp2 = sp1[1].split('#')
+                    file_recv_name = sp2[0]
+                    file_recv_data = sp2[1]
 
-
-            # 화면 데이터 수신
-            elif sp1[0] == Network_Packet.Sendbyte_ACK:
-                # print(sp1[1])
-                self.receive_started = True
-                self.text_chat_view.append("기능 : 화면 데이터 메시지 수신")
-
-                # 이미지 데이터를 QPixmap으로 변환하여 QLabel에 표시
-                try:
-                    # screen_img = sp1[1]
-                    #self.Active_Screen.Recv_Screen_Thread(screen_img)
-                    # recv_sharing_thread = threading.Thread(target=Active_Screen.Recv_Screen_Thread, args=(sp1[1],))
-
-                    # 메인 화면
-                    recv_sharing_thread1 = threading.Thread(target=self.Recv_Screen_Thread, args=(sp1[1],))
-                    recv_sharing_thread1.daemon = True
-                    recv_sharing_thread1.start()
-
-                    # 확대 화면 UI 연결
-                    recv_sharing_thread2 = threading.Thread(target=self.screen_window.Recv_Screen_Thread, args=(sp1[1],))
-                    recv_sharing_thread2.daemon = True
-                    recv_sharing_thread2.start()
+                    self.text_network_view.append('파일 데이터 다운로드 진행 중... (1)')
+                    time.sleep(5)                       # file_recv_data 데이터가 전부 받아올때까지 시간 대기
+                    self.file_download(file_recv_name, file_recv_data)
 
 
-                except Exception as e:
-                    self.text_chat_view.append("데이터 : base64 디코딩 실패하였습니다. ")
-                    print(f"Error displaying image: {e}")
-                    # 오류 처리를 원하면 여기에 해당하는 코드를 작성하세요.
-                    self.text_chat_view.append("에러 : 알 수 없는 화면1 데이터 수신")
 
-            # 원격 조정 데이터 수신?
-            elif sp1[0] == Network_Packet.REQUEST_SCREEN_ACK:
-                self.text_chat_view.append("REQUEST_SCREEN_ACK 메시지 수신")
-                # 내가 가진 이름과 요청받은 이름이 같을 경우
-                # 서버에게 화면 공유를 해야한다.
-                if self.myname == sp1[1]:
-                    # 화면 공유하기
-                    self.sharing_start()
+                # 화면 데이터 수신
+                elif sp1[0] == Network_Packet.Sendbyte_ACK:
+                    # print(sp1[1])
+                    self.receive_started = True
+                    self.text_network_view.append('기능 : 화면 데이터 메시지 수신')
 
-            else:
-                self.text_network_view.append('에러 : 알 수 없는 데이터2가 수신되었습니다.')
-                self.text_network_view.append('에러 : 아마 이미지 데이터가 수신된 듯 합니다.')
+                    # 이미지 데이터를 QPixmap으로 변환하여 QLabel에 표시
+                    try:
+                        # screen_img = sp1[1]
+                        # self.Active_Screen.Recv_Screen_Thread(screen_img)
+                        # recv_sharing_thread = threading.Thread(target=Active_Screen.Recv_Screen_Thread, args=(sp1[1],))
 
+                        # 메인 화면
+                        recv_sharing_thread1 = threading.Thread(target=self.Recv_Screen_Thread, args=(sp1[1],))
+                        recv_sharing_thread1.daemon = True
+                        recv_sharing_thread1.start()
+
+                        # 확대 화면 UI 연결
+                        recv_sharing_thread2 = threading.Thread(target=self.screen_window.Recv_Screen_Thread, args=(sp1[1],))
+                        recv_sharing_thread2.daemon = True
+                        recv_sharing_thread2.start()
+
+
+                    except Exception as e:
+                        self.text_chat_view.append("데이터 : base64 디코딩 실패하였습니다. ")
+                        print(f"Error displaying image: {e}")
+                        # 오류 처리를 원하면 여기에 해당하는 코드를 작성하세요.
+                        self.text_chat_view.append("에러 : 알 수 없는 화면1 데이터 수신")
+
+                # 원격 조정 데이터 수신?
+                elif sp1[0] == Network_Packet.Request_Screen_ACK:
+                    self.text_chat_view.append("Request_Screen_ACK 메시지 수신")
+                    # 내가 가진 이름과 요청받은 이름이 같을 경우
+                    # 서버에게 화면 공유를 해야한다.
+                    if self.myname == sp1[1]:
+                        # 화면 공유하기
+                        self.sharing_start()
+
+                else:
+                    self.text_network_view.append('에러 : 알 수 없는 데이터2가 수신되었습니다.')
+                    self.text_network_view.append('에러 : 아마 이미지 데이터가 수신된 듯 합니다.')
+
+            except Exception as e:
+                self.text_network_view.append('에러 : 알 수 없는 데이터3가 수신되었습니다.')
+                print("오류가 발생했습니다 : ", e)
 
         else:
             self.text_chat_view.append('에러 : 네트워크 Recv_data 접속에 실패하였습니다.')
@@ -235,7 +251,8 @@ class Active_Window(QMainWindow):
         if not self.network_connect_count:
             self.network_connect_count = True
             self.chatting_count = True
-            self.text_network_view.append('네트워크 : 네트워크 연결되었습니다.')
+            self.text_network_view.append('네트워크 : 연결되었습니다.')
+            self.text_chat_view.append('네트워크 : 연결되었습니다.')
 
             # Client생성 및 서버 연결
             self.client = Client(ip=ip, port=port)
@@ -267,7 +284,8 @@ class Active_Window(QMainWindow):
             self.chatting_count = False
             self.client.close()
             self.person_listWidget.clear()
-            self.text_network_view.append('네트워크 : 네트워크 연결 종료 되었습니다.')
+            self.text_network_view.append('네트워크 : 연결 종료 되었습니다.')
+            self.text_chat_view.append('네트워크 : 연결 종료 되었습니다.')
         else:
             self.text_network_view.append('에러 : 이미 네트워크 종료되어 있습니다.')
 
@@ -479,37 +497,40 @@ class Active_Window(QMainWindow):
             self.file_list_widget.addItem(file_path)
 
     # 클라이언트 파일 현황
-    # def file_list(self):
-    #     if os.path.exists(self.send_path) and os.path.isdir(self.send_path):
-    #         file_path = os.listdir(self.send_path)
-    #         self.file_listView.addItems(file_path)
-    #     else:
-    #         self.text_network_view.append('에러 : 파일을 불러올 수 없습니다.')
+    def file_widget_Item_add(self):
+        path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
+
+        # 특정 경로에 있는 파일들을 가져와서 QListWidget에 추가
+        for filename in os.listdir(path):
+            file_path = os.path.join(path, filename)
+            if os.path.isfile(file_path):
+                item = QListWidgetItem(filename)
+                self.file_list_widget.addItem(item)
 
     # 파일 전송 : file_send_Button
     def file_send(self):
-        # file_path = r"C:\Users\user\Desktop\file_send"     # 원본 파일 경로!
-
         if self.network_connect_count:
             self.text_network_view.append('기능 : 파일전송 기능 선택')
+            send_file_path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
             selected_file = self.file_list_widget.currentItem()
 
             if selected_file:
-                file_path = selected_file.text()
+                file_send_name = selected_file.text()
+                #file_path = send_file_path + f'\{file_send_name}'
 
-                if os.path.exists(file_path) and os.path.isfile(file_path):
+                if os.path.exists(send_file_path) and os.path.isfile(send_file_path):
                     # 1. 파일을 바이트로 변환하기
-                    with open(file_path, 'rb') as file:       # 바이너리 읽기 모드 'rb'
+                    with open(send_file_path, 'rb') as file:       # 바이너리 읽기 모드 'rb'
                         file_data = file.read()
 
                     # 2. 바이트 데이터를 문자열로 변환하기
                     based_file_data = base64.b64encode(file_data)
 
-                    file_name = os.path.basename(file_path)
+                    file_send_name = os.path.basename(send_file_path)
                     # file_size = len(file_data)
 
                     # 파일 패킷 생성 및 전송
-                    pack = Network_Packet.SendFile(file_name, based_file_data)
+                    pack = Network_Packet.SendFile(file_send_name, based_file_data)
                     self.client.SendData(pack)
                     self.text_network_view.append('기능 : 파일이 성공적으로 전달되었습니다.')
 
@@ -521,24 +542,24 @@ class Active_Window(QMainWindow):
             self.text_network_view.append('오류 : 오프라인 상태 입니다.')
 
     # 파일 다운로드 버튼 없음.
-    def file_download(self, file_name, file_data):
+    def file_download(self, file_download_name, file_ddata):
         self.text_network_view.append('기능 : 전송받은 파일이 있습니다.')
 
         try:
-            self.text_network_view.append('기능 : 파일 다운로드 진행 중...')
+            self.text_network_view.append('기능 : 파일을 download 파일에 저장 중...(2)')
             download_path = r"C:\Users\user\Downloads"      # 파일 다운로드 경로
 
             # 1. 파일 확장자 분리
-            dencode_filedata = base64.b64decode(file_data)
+            dencode_filedata = base64.b64decode(file_ddata)
 
             # 2. 파일 저장
-            save_path = os.path.join(download_path, file_name)
+            save_path = os.path.join(download_path, file_download_name)
 
             with open(save_path, 'wb') as file:
                 file.write(dencode_filedata)
 
-            print(f"파일 수신 및 저장 성공: {file_name}")
-            self.text_network_view.append(f"파일 수신 및 저장 성공: {file_name}")
+            # print(f"파일 수신 및 저장 성공: {file_download_name}")
+            self.text_network_view.append(f"파일 수신 및 저장 성공: {file_download_name}")
 
         except Exception as e:
             print(f"파일 수신 및 저장 중 오류 발생: {e}")

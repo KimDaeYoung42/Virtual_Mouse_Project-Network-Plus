@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="Icon/toolbar_icon.qrc">
+    <normaloff>:/icon/tap.png</normaloff>:/icon/tap.png</iconset>
+  </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
@@ -321,6 +325,18 @@
     </widget>
    </widget>
   </widget>
+  <action name="actionmainw_icon1">
+   <property name="icon">
+    <iconset resource="Icon/toolbar_icon.qrc">
+     <normaloff>:/icon/tap.png</normaloff>:/icon/tap.png</iconset>
+   </property>
+   <property name="text">
+    <string>mainw_icon1</string>
+   </property>
+   <property name="toolTip">
+    <string>mian_icon1</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="Icon/toolbar_icon.qrc"/>

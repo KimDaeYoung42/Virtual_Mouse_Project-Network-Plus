@@ -15,6 +15,9 @@ class Active_Screen(QMainWindow):
         super().__init__()
 
         loadUi("UI_App_Screen.ui", self)
+        self.setMinimumSize(1620, 950)
+        self.setMaximumSize(1620, 950)
+
         self.dataset = None
         # self.img_data = None
 
