@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="gesture_i">
+    <file>gesture_all_state.png</file>
+    <file>gesture_index_middle.png</file>
+    <file>gesture_index_middle_ring.png</file>
+    <file>gesture_index_pinky.png</file>
+    <file>gesture_index_right.png</file>
+    <file>gesture_not_state.png</file>
+    <file>gesture_pinky.png</file>
+    <file>gesture_ring_pinky.png</file>
+    <file>gesture_thumb_index.png</file>
+    <file>gesture_thumb_pinky.png</file>
+  </qresource>
+</RCC>

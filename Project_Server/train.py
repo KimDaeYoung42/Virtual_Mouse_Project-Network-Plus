@@ -13,21 +13,20 @@ from tensorflow.keras.models import load_model
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
-# 필요한 action ---- 주먹, 다핌, 검지중지, 엄지검지, 엄지중지, 엄지소지만, 소지만 ---- 7개
-actions = ['rock', 'paper', 'scissors', 'ring_pinky', 'index_middle_ring', 'thumb_index', 'thumb_pinky', 'index_pinky', 'index_right', 'pinky']
+actions = ['scissors', 'thumb_index', 'rock', 'paper', 'ring_pinky', 'index_middle_ring','thumb_pinky', 'index_pinky', 'index_right', 'pinky']
 
 # dataset 로드하는 부분
 data = np.concatenate([
-    np.load('dataset/seq_rock_1691368369.npy'),
-    np.load('dataset/seq_paper_1691368369.npy'),
-    np.load('dataset/seq_scissors_1691368369.npy'),
-    np.load('dataset/seq_ring_pinky_1691368369.npy'),
-    np.load('dataset/seq_index_middle_ring_1691368369.npy'),
-    np.load('dataset/seq_thumb_index_1691368369.npy'),
-    np.load('dataset/seq_thumb_pinky_1691368369.npy'),
-    np.load('dataset/seq_index_pinky_1691368369.npy'),
-    np.load('dataset/seq_index_right_1691368369.npy'),
-    np.load('dataset/seq_pinky_1691368369.npy')
+    np.load('dataset/seq_scissors_1691386846.npy'),
+    np.load('dataset/seq_thumb_index_1691386846.npy'),
+    np.load('dataset/seq_rock_1691386846.npy'),
+    np.load('dataset/seq_paper_1691386846.npy'),
+    np.load('dataset/seq_ring_pinky_1691386846.npy'),
+    np.load('dataset/seq_index_middle_ring_1691386846.npy'),
+    np.load('dataset/seq_thumb_pinky_1691386846.npy'),
+    np.load('dataset/seq_index_pinky_1691386846.npy'),
+    np.load('dataset/seq_index_right_1691386846.npy'),
+    np.load('dataset/seq_pinky_1691386846.npy')
 ], axis=0)
 
 # print(data.shape) # (x, 30, 100)
@@ -52,8 +51,8 @@ x_train, x_val, y_train, y_val = train_test_split(x_data, y_data, test_size=0.2,
 # x_train.shape[1:3] --->  (None, 30, 99)
 
 model = Sequential([
-    LSTM(100, activation='relu', input_shape=x_train.shape[1:3]),
-    Dense(50, activation='relu'),
+    LSTM(110, activation='relu', input_shape=x_train.shape[1:3]),
+    Dense(55, activation='relu'),
     Dense(len(actions), activation='softmax')
 ])
 
