@@ -4,13 +4,12 @@ import os
 import sys
 import subprocess
 import psutil
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.uic import loadUi
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QLineEdit
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap, QCursor
-from tensorflow.keras.models import load_model
-
-
+from tensorflow.keras.models import load_model 
 
 import cv2
 import mediapipe as mp
@@ -20,7 +19,6 @@ from Mouse_Module import MouseFunction
 from Server_Control import Server, Control
 from Network_Packet import PacketTag, Packet
 from Recv_Screen import Active_Screen
-
 
 import autopy
 import icon_toolbar 
@@ -33,14 +31,7 @@ import threading
 import zlib
 import socket
 import base64
-
-
-class ServerProxy:
-    def __init__(self, port):
-        self.server = Server(port)
-
-    def send_all_data(self, msg):
-        self.server.send_all_data(msg)
+import shutil
 
 class Active_Webcam(QMainWindow):
     def __init__(self):
@@ -48,7 +39,7 @@ class Active_Webcam(QMainWindow):
 
         # UI 관련
         loadUi("UI_App_WebCam (Network_Mode) (1).ui", self)      # UI 파일 로드
-        self.setWindowTitle("가상 인터페이스 프로그램")
+        self.setWindowTitle("가상 인터페이스 프로그램 (제어자 전용)")  
         # self.setGeometry(100, 440, 1500, 820)
         self.setMinimumSize(1500, 820)
 
@@ -82,9 +73,12 @@ class Active_Webcam(QMainWindow):
         self.request_screen_count = 0
 
         self.user_list = []
+        self.click_elapse_time = 0
+        self.click_start_time = 0
 
         # Default 제스쳐
         self.actions = ['Click', 'Zoom', 'None', 'Move', 'DClick', 'Keyboard', 'Server', 'Share', 'Request', 'File']
+        self.action = ''
 
         # 디볼트 스크롤에 아이템 추가하기
         self.listWidget1_1.addItem("Click")
@@ -93,7 +87,17 @@ class Active_Webcam(QMainWindow):
         self.listWidget1_4.addItem("Zoom")
 
         # 선택 스크롤에 기능 선택
-        Scroll_items = ["None", "Move", "DClick", "Keyboard", "Server", "Share", "Request", "File", "기능미정"]
+        Scroll_items = ['None', 'Move', 'DClick', 'Keyboard', 'Server', 'Share', 'Request', 'File', '기능미정']
+
+        # comboBox들을 리스트로 저장
+        comboboxes = [self.comboBox2_1, self.comboBox2_2, self.comboBox2_3, self.comboBox2_4, self.comboBox2_5, self.comboBox2_6, self.comboBox2_7, self.comboBox2_8]
+
+        for index, Scroll_item in enumerate(Scroll_items):
+            # 각각의 comboBox에 아이템 추가
+            if index < len(comboboxes):
+                comboboxes[index].addItem(Scroll_item)
+
+
         for Scroll_item in Scroll_items:
             self.comboBox2_1.addItem(Scroll_item)
             self.comboBox2_2.addItem(Scroll_item)
@@ -104,23 +108,13 @@ class Active_Webcam(QMainWindow):
             self.comboBox2_7.addItem(Scroll_item)
             self.comboBox2_8.addItem(Scroll_item)
 
-
-        # 실행할 스레드 수
-        self.num_thread = 2
-
-        # 스레드 객체를 저장할 리스트
-        self.threads = []
-
         # 드래그 관련 초기화
         self.dragging = False                                               # 드래그 상태 플래그
         self.start_drag_pos = None                                          # 드래그 시작 좌표
 
-
-        # 화면 공유 플래그
-        self.is_sharing = True
-
         # 채팅 전송 버튼
         self.push_chat_Button.clicked.connect(self.short_message)
+        self.text_chatting1.installEventFilter(self)
         
         # 서버 시작/종료 버튼
         self.is_connected = False
@@ -175,18 +169,16 @@ class Active_Webcam(QMainWindow):
 
         print(self.actions)
 
-        
-
     def update_frame(self):
 
         cap = cv2.VideoCapture(0)                                      # 웹캠 번호 (0은 기본 웹캠)
         seq = []
         action_seq = []
         model = load_model('models/model.h5')
+
         #   디폴트 제스쳐   가위    엄지검지   주먹    보     약지소지  검지중지약지  엄지소지  검지소지  검지오른쪽   소지
         # self.actions = ['Click', 'Zoom', 'None', 'Move', 'DClick', 'Keyboard', 'Server', 'Share', 'Request', 'File']
 
-        
         while self.is_running:
             ret, frame = cap.read()                                        # 웹캠 프레임 읽기
 
@@ -195,7 +187,7 @@ class Active_Webcam(QMainWindow):
             frame = cv2.flip(frame, 1)                                      # 웹캠 좌우 반전
             frame = self.hand_detector.find_hands(frame)
             lm_list, label = self.hand_detector.find_positions(frame)
-            action = self.hand_detector.action_estimation(frame, seq, action_seq, model, self.actions)
+            self.action = self.hand_detector.action_estimation(frame, seq, action_seq, model, self.actions)
 
             if lm_list:
                 print(label)
@@ -207,202 +199,183 @@ class Active_Webcam(QMainWindow):
                 thumb_index_distance = math.sqrt((thumb_tip[1] - index_tip[1]) ** 2 + (thumb_tip[2] - index_tip[2]) ** 2)
                 index_middle_distance = math.sqrt((index_tip[1] - middle_tip[1]) ** 2 + (index_tip[2] - middle_tip[2]) ** 2)
 
-                print(action)
+                print(index_middle_distance)
 
 
-                # 행동해제 --> action == rock
-                # if action == 'None':
-                #     start_time = time.time()
-                #     elapse_time = time.time() - start_time
-                #     if elapse_time > 3:
-                #         self.active_stop()
-                #         elapse_time = 0
-                #         self.Lclick_count = 0  # 클릭 횟수 초기화
-                #         self.LDclick_count = 0
-                #         self.Scroll_count = 0
-                #         self.Drag_count = 0
-                #         self.file_send_count = 0
+                # 행동해제
+                if self.action == 'None':
+                    start_time = time.time()
+                    elapse_time = time.time() - start_time
+                    if elapse_time > 3:
+                        self.active_stop()
+                        elapse_time = 0
+                        self.Lclick_count = 0  # 클릭 횟수 초기화
+                        self.LDclick_count = 0
+                        self.Scroll_count = 0
+                        self.Drag_count = 0
+                        self.file_send_count = 0
+                        self.Window_zoom = 0
+                        self.dragging = False
 
-                # # 마우스 움직임 --> action == paper
-                # if action == 'Move':
-                #     # 검지와 중지가 붙어있지 않음
-                #     if index_middle_distance > 60:
-                #         self.mouse_MoveEvent(event=lm_list, screen_size=pyautogui.size())
-                #         self.Lclick_count = 0      # 클릭 횟수 초기화
-                #         self.LDclick_count = 0
-                #         self.Scroll_count = 0
-                #         self.Drag_count = 0
-                #         self.file_send_count = 0
-                #     # 더블클릭
-                # if action == 'DClick':
-                #     if self.LDclick_count == 0:
-                #         self.LDclick_count += 1  # 클릭 횟수 증가
-                #         self.mouse_Left_DoubleClickEvent()
-                #         self.text_view.append('기능 : 더블클릭')
-                #     else:
-                #         self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
+                # 마우스 움직임
+                if self.action == 'Move':
+                    self.mouse_MoveEvent(event=lm_list, screen_size=pyautogui.size())
+                    self.Lclick_count = 0      # 클릭 횟수 초기화
+                    self.LDclick_count = 0
+                    self.Scroll_count = 0
+                    self.Drag_count = 0
+                    self.file_send_count = 0
+                    self.Window_zoom = 0
+                    self.dragging = False
+
+                # 더블클릭
+                if self.action == 'DClick':
+                    if self.LDclick_count == 0:
+                        self.LDclick_count += 1  # 클릭 횟수 증가
+                        self.mouse_Left_DoubleClickEvent()
+                        self.text_view.append('기능 : 더블클릭')
+                    else:
+                        self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
 
 
-                # # 마우스 클릭 --> action == scissors
-                # if action == 'Click':
-                #     if label == 'left':
-                #         # 우클릭
-                #         if self.Rclick_count == 0 and index_middle_distance < 60:
-                #             self.Rclick_count += 1  # 클릭 횟수 증가
-                #             self.mouse_Right_ClickEnvet()
-                #             self.text_view.append('기능 : 우클릭')
-                #         else:
-                #             self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
-                #     elif label == 'right':
-                #         # 좌클릭
-                #         if self.Lclick_count == 0 and index_middle_distance < 60:
-                #             click_start_time = time.time()
-                #             self.Lclick_count += 1  # 클릭 횟수 증가
-                #             self.mouse_Left_ClickEvent()
-                #             self.text_view.append('기능 : 좌클릭')
-                #         else:
-                #             self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
+                # 마우스 클릭
+                if self.action == 'Click':
+                    if label == 'left':
+                        # 우클릭
+                        if self.Rclick_count == 0:
+                            self.Rclick_count += 1  # 클릭 횟수 증가
+                            self.mouse_Right_ClickEnvet()
+                            self.text_view.append('기능 : 우클릭')
+                        else:
+                            self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
+                    elif label == 'right':
+                        # 좌클릭
+                        if self.Lclick_count == 0:
+                            self.click_start_time = time.time()
+                            self.Lclick_count += 1  # 클릭 횟수 증가
+                            self.mouse_Left_ClickEvent()
+                            self.text_view.append('기능 : 좌클릭')
+                        else:
+                            self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
 
-                #     click_elapse_time = time.time() - click_start_time
-                #     # 1초 이상 지속시 드래그 다운 and thumb_index_distance 가 x 이상 ( 손가락이 떨어졋을 때 드래그 업)
-                #     if label == 'right' and click_elapse_time >= 2:
-                #         # 드래그 다운
-                #         if not self.dragging:
-                #             pyautogui.mouseDown(button='left')
-                #             self.text_view.append("드래그 기능 : 좌클릭 상태")
-                #             self.dragging = True
+                    self.click_elapse_time = time.time() - self.click_start_time
+                    print(self.click_elapse_time)
+                    # 3초 이상 지속시 드래그 다운 and index_middle_distance 가 x 이상 ( 손가락이 떨어졋을 때 드래그 업)
+                    if label == 'right' and self.click_elapse_time >= 3 and index_middle_distance < 30:
+                        # 드래그 다운
+                        if not self.dragging:
+                            pyautogui.mouseDown(button='left')
+                            self.text_view.append("드래그 기능 : 좌클릭 상태")
+                            self.dragging = True
 
-                #         if index_middle_distance < 60:
-                #             # 마우스 커서 이동
-                #             self.text_view.append("드래그 기능 : 드래그 중")
-                #             self.mouse_MoveEvent(event=lm_list, screen_size=pyautogui.size())
-                #         elif index_middle_distance > 60 and self.dragging:
-                #             self.text_view.append("드래그 기능 : 드래그 해제 상태")
-                #             pyautogui.mouseUp(button='left')
-                #             self.dragging = False  # 드래그 상태 플래그 해제
-                #             click_elapse_time = 0
+                        if index_middle_distance < 30:
+                            # 마우스 커서 이동
+                            self.text_view.append("드래그 기능 : 드래그 중")
+                            self.mouse_MoveEvent(event=lm_list, screen_size=pyautogui.size())
+                        elif index_middle_distance > 30 and self.dragging:
+                            self.text_view.append("드래그 기능 : 드래그 해제 상태")
+                            pyautogui.mouseUp(button='left')
+                            self.dragging = False  # 드래그 상태 플래그 해제
+                            self.click_elapse_time = 0 
 
-                #
 
-                # window_original_width = 0
-                # window_original_height = 0
+                # 0 ~ 25 축소,  And  100 이상시 확대 
 
-                # x = 4
-                # y = 3
+                if self.action == 'Zoom':
+                    # label == left -> 윈도우창 확대 or 축소 --> 엄지,검지의 거리를 측정
+                    if label == 'left':
+                        if thumb_index_distance > 100 and self.Window_zoom == 0:
+                            self.Window_zoom += 1
+                            self.text_view.append('기능 : 윈도우 확대 이벤트 발생')
 
-                # if action == 'Zoom':
-                #     # label == left -> 윈도우창 확대 or 축소 --> 엄지,검지의 거리를 측정 150 이상일 때 확대 150 이하일 때 축소
-                #     if label == 'left':
-                #         if thumb_index_distance > 150 and self.Window_zoom == 0:
-                #             self.Window_zoom += 1
-                #             self.text_view.append('기능 : 윈도우 확대 이벤트 발생')
+                            # 현재 포커스 하는 윈도우의 창을 최대화 한다.
 
-                #             # 원래의 윈도우 창 크기 저장.
-                #             window = gw.getActiveWindow()               
+                            # 원래의 윈도우 창 크기 저장.
+                            window = gw.getActiveWindow()
 
-                #             # 현재 활성화 윈도우 창 상태정보 가져오기
-                #             window_original_width, window_original_height = window.width, window.height
+                            # 윈도우의 크기 재설정 ( 최대화 )
+                            window.maximize()
 
-                #             # 윈도우의 크기 재설정 ( 확대 )
-                #             if self.screen_size_x > window_original_width and self.screen_size_y > window_original_height:
-                #                 window.resize(window_original_width + x, window_original_height + y)
-                #             elif self.screen_size_x > window_original_width and self.screen_size_y < window_original_height:
-                #                 window.resize(window_original_width + x, window_original_height)
-                #             elif self.screen_size_x < window_original_width and self.screen_size_y > window_original_height:
-                #                 window.resize(window_original_width, window_original_height + y)
+                        elif thumb_index_distance < 25 and self.Window_zoom == 0:
+                            self.Window_zoom += 1
+                            self.text_view.append('기능 : 윈도우 축소 이벤트 발생')
 
-                #         elif thumb_index_distance > 150 and self.Window_zoom == 0:
-                #             self.Window_zoom += 1
-                #             self.text_view.append('기능 : 윈도우 축소 이벤트 발생')
+                            # 현재 포커스 하는 윈도우의 크기를 600 * 400으로 재설정
 
-                #             # 원래의 윈도우 창 크기 저장.
-                #             window = gw.getActiveWindow()
+                            # 원래의 윈도우 창 크기 저장.
+                            window = gw.getActiveWindow()
 
-                #             # 현재 활성화 윈도우 창 상태정보 가져오기
-                #             window_original_width, window_original_height = window.width, window.height
+                            # 600 * 400 으로 크기 재설정
+                            window.resize(600, 400)
 
-                #             # 윈도우의 크기 재설정 ( 축소 )
-                #             if window_original_width > 300 and window_original_height > 300:
-                #                 window.resize(window_original_width - x, window_original_height - y)
-                #             elif window_original_width < 300 and window_original_height > 300:
-                #                 window.resize(window_original_width, window_original_height - y)
-                #             elif window_original_width > 300 and window_original_height < 300:
-                #                 window.resize(window_original_width - x, window_original_height)
+                        else:
+                            self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
 
-                #         else:
-                #             self.text_view.append("오류 : 손 펼친 뒤 다시 제스처 취해야 합니다.")
+                    # label == right -> 스크롤 올리기 or 내리기
+                    elif label == 'right':
+                        if self.Scroll_count == 0 and 100 < thumb_index_distance:
+                            self.text_view.append("기능 : 스크롤 확대 이벤트 감지")
+                            pyautogui.scroll(20)
+                        elif self.Scroll_count == 0 and thumb_index_distance < 25:
+                            self.text_view.append("기능 : 스크롤 축소 이벤트 감지")
+                            pyautogui.scroll(-20)
+                        elif not self.Scroll_count == 0:
+                            self.text_view.append("기능 : 스크롤 이벤트 정지")
+                            self.text_view.append("손가락을 펼치고 다시 제스처 취해야 기능 가능")                    
 
-                #     # label == right -> 스크롤 올리기 or 내리기 --> 거리를 측정 150이상 -> 올리기, 150이하 -> 내리기
-                #     elif label == 'right':
-                #         if self.Scroll_count == 0 and 200 < thumb_index_distance < 300:
-                #             self.text_view.append("기능 : 스크롤 확대 이벤트 감지")
-                #             pyautogui.scroll(-2)
-                #             self.Scroll_count += 1
-                #         elif self.Scroll_count == 0 and 0 < thumb_index_distance < 100:
-                #             self.text_view.append("기능 : 스크롤 축소 이벤트 감지")
-                #             pyautogui.scroll(2)
-                #             self.Scroll_count += 1
-                #         elif not self.Scroll_count == 0:
-                #             self.text_view.append("기능 : 스크롤 이벤트 정지")
-                #             self.text_view.append("손가락을 펼치고 다시 제스처 취해야 기능 가능")                    
-
-                # # 키보드 키기 / 끄기    action == index_middle_ring
-                # if action == 'Keyboard':
-                #     # labal == right -> 키기
-                #     if label == 'right':
-                #         if self.Keyboard_count == 0:
-                #             self.text_view.append("기능 : 키보드 실행")
-                #             self.Keyboard_count += 1
-                #             self.keyboard_on_Event()
+                # 키보드 키기 / 끄기 
+                if self.action == 'Keyboard':
+                    if label == 'right':
+                        if self.Keyboard_count == 0:
+                            self.text_view.append("기능 : 키보드 실행")
+                            self.Keyboard_count += 1
+                            self.keyboard_on_Event()
             
-                #     # label == left -> 끄기
-                #     elif label == 'left':
-                #         if not self.Keyboard_count == 0:
-                #             self.text_view.append("기능 : 키보드 종료")
-                #             self.Keyboard_count = 0
-                #             self.keyboard_off_Event()
+                    elif label == 'left':
+                        if not self.Keyboard_count == 0:
+                            self.text_view.append("기능 : 키보드 종료")
+                            self.Keyboard_count = 0
+                            self.keyboard_off_Event()
 
-                # # 서버 연결 / 해제      action == thumb_pinky
-                # if action == 'Server':
-                #     # label == right -> 연결
-                #     if label == 'right' and not self.is_connected:
-                #         self.text_view.append("기능 : 서버 연결")
-                #         self.start_server()
+                # 서버 연결 / 해제 
+                if self.action == 'Server':
+                    if label == 'right' and not self.is_connected:
+                        self.text_view.append("기능 : 서버 연결")
+                        self.start_server()
                         
-                #     # label == left -> 해제
-                #     elif label == 'left' and self.is_connected:
-                #         self.text_view.append("기능 : 서버 연결 해제")
-                #         self.stop_server()
+                    # elif label == 'left' and self.is_connected:
+                    #     self.text_view.append("기능 : 서버 연결 해제")
+                    #     self.stop_server()
                 
-                # # 화면 공유 시작 / 해제     action == index_pinky
-                # if action == 'Share':
-                #     if self.is_connected:
-                #         # label == right -> 시작
-                #         if label == 'right' and not self.is_sharing:
-                #             self.text_view.append("기능 : 화면 공유 시작")
-                #             self.is_sharing = True
-                #             self.screen_sharing_start()
-                #             # sharing_thread = threading.Thread(target=self.screen_sharing_start)
-                #             # self.threads.append(sharing_thread)
-                #             # sharing_thread.daemon = True
-                #             # sharing_thread.start()
-                #         elif label == 'left' and self.is_sharing:
-                #             self.text_view.append("기능 : 화면 공유 종료")
-                #             self.screen_sharing_stop()
-                #             self.is_sharing = False
-                #     elif not self.is_connected:
-                #         self.text_view.append("서버 연결이 되어있지 않습니다.")
+                # 화면 공유 시작 / 해제 
+                if self.action == 'Share':
+                    if self.is_connected:
+                        if label == 'right' and self.screen_share_count == 0:
+                            self.text_view.append("기능 : 화면 공유 시작")
+                            self.screen_sharing_start()
+                        elif label == 'left' and self.screen_share_count == 1:
+                            self.text_view.append("기능 : 화면 공유 종료")
+                            self.screen_sharing_stop()
+                    elif not self.is_connected:
+                        self.text_view.append("서버 연결이 되어있지 않습니다.")
 
-                # # 파일 전송     action == index_tip
-                # if action == 'File':
-                #     if self.is_connected and self.file_send_count == 0:
-                #         self.text_view.append('기능 : 파일 전송')
-                #         self.file_send()
-                #         self.file_send_count += 1
+                # 파일 전송 
+                if self.action == 'File':
+                    if self.is_connected and self.file_send_count == 0:
+                        self.text_view.append('기능 : 파일 전송')
+                        self.file_send()
+                        self.file_send_count += 1
+                    elif not self.is_connected:
+                        self.text_view.append('서버 연결이 되어있지 않습니다.')
                 
-                # # 화면 공유 요청 ( 서버 -> 클라 )
-                # if action == 'Request':
-                #     print(화면공유 요청)
+                # 화면 공유 요청 ( 서버 -> 클라 )
+                if self.action == 'Request':
+                    if self.is_connected and self.request_screen_count == 0:
+                        self.request_screen()
+                        self.text_view.append('기능 : 화면공유 요청')
+                        self.request_screen_count += 1
+                    elif not self.is_connected:
+                        self.text_view.append('서버 연결이 되어있지 않습니다.')
 
             # 손 인식하지 않았을 시
             else:
@@ -425,8 +398,7 @@ class Active_Webcam(QMainWindow):
     def start_cam(self):
         
         thread = threading.Thread(target=self.update_frame)
-        self.threads.append(thread)
-        # self.thread.daemon = True
+        thread.daemon = True
         thread.start()
 
         if thread.is_alive:
@@ -437,14 +409,14 @@ class Active_Webcam(QMainWindow):
 
     # 서버 연결 / 해제
     def start_server(self):
-        if self.server_thread and self.server_thread.is_alive():
+        if self.is_connected:
             self.text_network_view1.append("서버가 이미 실행 중입니다.")
             return
         
         self.is_connected = True
-        self.server_thread = threading.Thread(target=self.run_server)
-        self.server_thread.daemon = True
-        self.server_thread.start()
+        server_thread = threading.Thread(target=self.run_server)
+        server_thread.daemon = True
+        server_thread.start()
 
     def run_server(self):
         self.server = Server(9000)
@@ -491,16 +463,15 @@ class Active_Webcam(QMainWindow):
             recv_screen_thread = threading.Thread(target=self.recv_screen.Recv_Screen_Thread, args=(data,))
             recv_screen_thread.daemon = True
             recv_screen_thread.start()
-            
-            # self.ret = Control.send_bytes_ack(data, self.server)
-            # tag, data = self.ret.split('@', 1)
-            # self.ret = tag + '@bytes'
-            # self.text_network_view1.append(f'송신 메시지 : {self.ret}') 
         
         elif tag == PacketTag.Sendfile.value:
             filename, file_data = data.split('#', 1) 
             self.text_network_view1.append(f'수신 메시지 : {tag}@{filename}')
+
+            time.sleep(5)
             self.recv_file(filename, file_data)
+
+            # 받은 파일을 다시 클라들에게 보낼까....?
             # encoded_filedata = file_data.encode('utf-8')
             # self.ret = Control.send_file_ack(filename, encoded_filedata, self.server)
 
@@ -518,8 +489,16 @@ class Active_Webcam(QMainWindow):
         msg = self.text_chatting1.toPlainText()
         self.text_chat_view1.append(f'{name} : {msg}')
 
-        self.ret = Control.short_message_ack(name, msg, self.server)
-        self.text_network_view1(f'송신 메시지 : {self.ret}')
+        ret = Control.short_message_ack(name, msg, self.server)
+        # 전송 이후 메시지 입력창 초기화
+        self.text_chatting1.clear()
+
+    def eventFilter(self, source, event):
+        if (event.type() == QtCore.QEvent.KeyPress and source is self.text_chatting1):
+            if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
+                self.short_message()
+                return True
+        return super().eventFilter(source, event)
     
     # 접속자 리스트 갱신
     def user_list_view(self):
@@ -528,14 +507,14 @@ class Active_Webcam(QMainWindow):
             self.person_listWidget1.addItem(user)
 
     def screen_sharing_start(self):
-        self.is_sharing = True
+        self.screen_share_count += 1
         sharing_thread = threading.Thread(target=self.screen_sharing_thread)
         sharing_thread.daemon = True
         sharing_thread.start()
 
     def screen_sharing_thread(self):
         self.text_network_view1.append('화면 공유 시작')
-        while self.is_sharing:
+        while self.screen_share_count == 1:
 
             # 모니터 화면 캡쳐
             image = pyautogui.screenshot()
@@ -554,8 +533,8 @@ class Active_Webcam(QMainWindow):
             time.sleep(0.1)
 
     def screen_sharing_stop(self):
-        if self.is_sharing:
-            self.is_sharing = False
+        if self.screen_share_count == 1:
+            self.screen_share_count = 0
             self.text_network_view1.append('화면공유 종료')
         else:
             self.text_network_view1.append('화면 공유중이 아닙니다.')
@@ -565,24 +544,45 @@ class Active_Webcam(QMainWindow):
         # 공유받을 화면을 띄움
         self.recv_screen.show()
         
+        # 만약 유저 리스트 위젯에서 선택을 안했다면...? ------- 2번째 사람의 이름으로 한다
+        if not self.person_listWidget1.currentItem():
+            item = self.person_listWidget1.item(1)
+            name = item.text()
         # 유저 리스트 위젯에서 선택된 이름을 가져온다.
-        item = self.person_listWidget1.currentItem()
-        name = item.text()
+        else:
+            item = self.person_listWidget1.currentItem()
+            name = item.text()
+
         print(name)
 
         # 그 이름을 클라이언트에게 보낸다.
         ret = Control.request_screen_ack(name, self.server)
-        # self.text_network_view1(f'송신 메시지 : {self.ret}')
 
+    # 파일 선택
     def select_file(self): 
         file_path, _ = QFileDialog.getOpenFileName(self, "파일 선택")
-        if file_path:
-            self.file_listView1.addItem(file_path)
+        # 선택된 파일을 지정된 폴더 ( C:\Users\user\Desktop\다운로드 )에 이동 시키기
+        Download_path = r'C:\Users\user\Desktop\다운로드'
+
+        # 0. 경로가 존재하지 않을 경우 폴더 생성
+        if not os.path.exists(Download_path):
+            os.makedirs(Download_path)
+
+        # file_path -> 파일을 Download_path에 복사시킴
+        shutil.copy(file_path, Download_path)
+        
+        # 파일 리스트뷰 로드
+        self.file_widget_Item_add()
+
 
     # 파일 받았을 때
     def recv_file(self, file_name, file_data):
         try:
             download_path = r'C:\Users\user\Desktop\다운로드'  # 파일 다운로드 경로
+
+            # 0. 경로가 존재하지 않을 경우 폴더 생성
+            if not os.path.exists(download_path):
+                os.makedirs(download_path)
 
             # 1. base64 디코딩
             decoded_filedata = base64.b64decode(file_data)
@@ -642,7 +642,12 @@ class Active_Webcam(QMainWindow):
     # 프로그램이 시작 되었을 때 다운로드 폴더의 파일들이 위젯에 들어감
     def file_widget_Item_add(self):
         self.file_listView1.clear()
+
         path = r'C:\Users\user\Desktop\다운로드'
+
+        # 0. 경로가 존재하지 않을 경우 폴더 생성
+        if not os.path.exists(path):
+            os.makedirs(path)
 
         for filename in os.listdir(path):
             file_path = os.path.join(path, filename)
