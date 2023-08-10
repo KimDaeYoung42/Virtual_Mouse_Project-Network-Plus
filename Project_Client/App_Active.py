@@ -1,6 +1,7 @@
 # App_Active.py : 메인 프로그램 관련 코드.
 
 import os
+import shutil
 import sys
 import io
 import time
@@ -12,7 +13,7 @@ import tracemalloc
 import pyautogui
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.uic import loadUi
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QVBoxLayout, QWidget, QPushButton, QFileDialog, QDesktopWidget, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QVBoxLayout, QWidget, QPushButton, QFileDialog, QDesktopWidget, QMessageBox, QLineEdit
 from PyQt5.QtGui import QPixmap, QImage, QScreen
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from PIL import Image
@@ -20,6 +21,7 @@ from PIL import Image
 import base64
 import zlib
 
+import Network_Control
 import Network_Packet
 from Network_Control import Client
 from App_Active_Screen import Active_Screen
@@ -34,7 +36,7 @@ class Active_Window(QMainWindow):
         super().__init__()
 
         loadUi("UI_App_Active.ui", self)
-        self.setWindowTitle("가상 인터페이스 프로그램")
+        self.setWindowTitle("가상 인터페이스 프로그램 (일반 사용자용)")
         self.setGeometry(430, 100, 1180, 700)
         self.setMinimumSize(1180, 700)
         self.setMaximumSize(1180, 700)
@@ -69,7 +71,7 @@ class Active_Window(QMainWindow):
         # self.actionfile_recive.triggered.connect(self.file_download)               # auto
         self.actionhelp.triggered.connect(self.help_button)
 
-        # 버튼 클릭 이벤트 연결
+        # 버튼 클릭 이벤트 연결 1
         self.push_chat_Button.clicked.connect(self.chatting_send)
         self.push_connect_Button.clicked.connect(self.network_connect)
         self.push_disconnect_Button.clicked.connect(self.network_disconnect)
@@ -80,12 +82,18 @@ class Active_Window(QMainWindow):
         self.file_Button1.clicked.connect(self.select_file)
         self.file_Button2.clicked.connect(self.file_send)
 
+        # 버튼 클릭 이벤트 연결 2
+        self.text_chatting_insert.installEventFilter(self)
+        # self.text_chatting_insert.returnPressed.connect(self.chatting_send)
+
         # 초기화
         self.nickname = ''
         self.myname = ''
         self.user_list = []
         self.network_connect_count = False
+        self.net_open_connected = False
         self.chatting_count = False
+        self.close_socket_text = False
 
         # 화면 캡처 관련
         self.timer = QTimer(self)
@@ -97,11 +105,12 @@ class Active_Window(QMainWindow):
         self.file_widget_Item_add()
         self.file_name = None
         self.file_data = None
+        self.select_file_path = None
 
         self.send_path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
         self.recv_path = r"C:\Users\user\Desktop\file_recv"     # 복사될 파일 경로
 
-    # 0. 최근 사용한 네트워크 접속 정보 가져오기
+    # 0.1 최근 사용한 네트워크 접속 정보 가져오기
     def network_read_data(self):
         try:
             with open("network_data.txt", "r") as file:
@@ -119,6 +128,14 @@ class Active_Window(QMainWindow):
 
         except FileNotFoundError:
             pass
+
+    # 0.2 키보드 입력 관련 모듈
+    def eventFilter(self, source, event):
+        if (event.type() == QtCore.QEvent.KeyPress and source is self.text_chatting_insert):
+            if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
+                self.chatting_send()
+                return True
+        return super().eventFilter(source, event)
 
     # 1. 데이터 수신 파트
     def Recv_data(self, msg):
@@ -177,14 +194,14 @@ class Active_Window(QMainWindow):
 
                     try:
                         # 메인 화면
-                        recv_sharing_thread1 = threading.Thread(target=self.Recv_Screen_Thread, args=(sp1[1],))
-                        recv_sharing_thread1.daemon = True
-                        recv_sharing_thread1.start()
+                        self.recv_sharing_thread1 = threading.Thread(target=self.Recv_Screen_Thread, args=(sp1[1],))
+                        self.recv_sharing_thread1.daemon = True
+                        self.recv_sharing_thread1.start()
 
                         # 확대 화면 UI 연결
-                        recv_sharing_thread2 = threading.Thread(target=self.screen_window.Recv_Screen_Thread, args=(sp1[1],))
-                        recv_sharing_thread2.daemon = True
-                        recv_sharing_thread2.start()
+                        self.recv_sharing_thread2 = threading.Thread(target=self.screen_window.Recv_Screen_Thread, args=(sp1[1],))
+                        self.recv_sharing_thread2.daemon = True
+                        self.recv_sharing_thread2.start()
 
                     except Exception as e:
                         self.text_chat_view.append("오류 : 공유화면 데이터 수신 실패하였습니다.")
@@ -197,11 +214,34 @@ class Active_Window(QMainWindow):
                     if self.myname == sp1[1]:
                         self.sharing_start()
 
+                # 7) 화면 수신 종료 기능 (서버)
+                elif sp1[0] == Network_Packet.Sendbytebreak_ACK:
+                    self.text_network_view.append("기능 : 서버로부터의 공유화면이 종료되었습니다.")
+
+                    # time.sleep(5)
+                    self.sharing_started = False  # 화면 공유 관련
+                    self.receive_started = False  # 화면 수신 관련
+
+                    # self.recv_sharing_thread1.stop()
+                    # self.recv_sharing_thread2.stop()
+                    # self.recv_sharing_thread1.join()
+                    # self.recv_sharing_thread2.join()
+
+                    self.text_network_view.append("기능 : 정상적으로 공유 화면 수신 종료되었습니다.")
+
+                # 8) 공유화면 전송 종료 기능 (클라이언트)
+                elif sp1[0] == Network_Packet.Request_Screen_Stop_ACK:
+                    self.text_network_view.append("기능 : 서버로부터의 공유화면이 종료되었습니다.")
+                    self.sharing_started = False  # 화면 공유 관련
+                    self.receive_started = False  # 화면 수신 관련
+
                 else:
                     self.text_network_view.append('에러 : 알 수 없는 데이터가 수신되었습니다.')
+                    print(f"서버로부터 수신한 알 수 없는 데이터 (1) : {msg}")
 
             except Exception as e:
                 self.text_network_view.append('에러 : 알 수 없는 데이터 오류가 발생하였습니다.')
+                print(f"서버로부터 수신한 알 수 없는 데이터 (2) : {msg}")
                 print("오류가 발생했습니다 : ", e)
 
         else:
@@ -217,22 +257,27 @@ class Active_Window(QMainWindow):
 
         if not self.network_connect_count:
             self.text_chat_view.clear()
-            self.network_connect_count = True
-            self.chatting_count = True
-
+            self.text_network_view.append('네트워크 : 네트워크 연결 중...')
             try:
                 # (1) Client생성 및 서버 연결
                 self.client = Client(ip=ip, port=port)
-                self.client.open(self.Recv_data)
 
-                # (2) 로그인 패킷 생성 및 전송
-                pack = Network_Packet.LogIn(self.nickname)
-                self.client.SendData(pack)
+                if self.client.open(self.Recv_data):
+                    # (2) 서버 연결 성공시 - 관련 기능 활성화
+                    self.chatting_count = True
+                    self.network_connect_count = True
+                    self.text_network_view.append('네트워크: 연결되었습니다.')
+                    self.text_chat_view.append('네트워크: 연결되었습니다.')
 
-                self.myname = self.nickname
+                    # (3) 로그인 패킷 생성 및 전송
+                    pack = Network_Packet.LogIn(self.nickname)
+                    self.client.SendData(pack)
 
-                self.text_network_view.append('네트워크 : 연결되었습니다.')
-                self.text_chat_view.append('네트워크 : 연결되었습니다.')
+                    self.myname = self.nickname
+
+                else:
+                    self.text_network_view.append('네트워크: 연결 실패했습니다.')
+                    self.text_chat_view.append('네트워크: 연결 실패했습니다.')
 
             except Exception as e:
                 self.text_network_view.append('에러 : 네트워크 접속에 실패하였습니다.')
@@ -259,6 +304,16 @@ class Active_Window(QMainWindow):
         else:
             self.text_network_view.append('에러 : 이미 네트워크 종료되어 있습니다.')
 
+    # 2.3 소켓 비정상 감지시
+    # def network_socket_close(self):
+        #     print('network_socket_close 실행됨')
+        # socket_run = Network_Control.Client.socket_close_text()
+        # self.close_socket_text = socket_run
+
+        # print(f"socket_run : {socket_run}")
+        # if socket_run == False:
+    #      self.network_disconnect()
+
     # 3. 채팅 관련
     def chatting_view(self):
         self.text_chat_view.append('채팅 뷰')
@@ -274,6 +329,7 @@ class Active_Window(QMainWindow):
             pack = Network_Packet.ShortMessage(self.nickname, chatting_text)
             self.client.SendData(pack)
 
+            self.text_chatting_insert.clear()
         else:
             self.text_chat_view.append('오류 : 오프라인 상태 입니다.')
 
@@ -282,11 +338,16 @@ class Active_Window(QMainWindow):
     # 4.1 파일 선택
     def select_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "파일 선택")
-        if file_path:
-            self.file_list_widget.addItem(file_path)
+
+        # 파일 복사
+        send_path = r"C:\Users\user\Desktop\file_send"
+        shutil.copy(file_path, send_path)
+
+        self.file_widget_Item_add()
 
     # 4.2 클라이언트 파일 리스트
     def file_widget_Item_add(self):
+        self.file_list_widget.clear()
         path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
 
         # 특정 경로에 있는 파일들을 가져와서 QListWidget에 추가
@@ -305,7 +366,7 @@ class Active_Window(QMainWindow):
 
             if selected_file:
                 file_send_name = selected_file.text()
-                file_path = send_file_path + f'\{file_send_name}'
+                file_path = send_file_path + f'\{file_send_name}' ### 여기 코드가 문제 있음.
 
                 if os.path.exists(file_path) and os.path.isfile(file_path):
                     # (1) 파일을 바이트로 변환하기
@@ -336,12 +397,16 @@ class Active_Window(QMainWindow):
 
         try:
             self.text_network_view.append('기능 : 파일을 download 파일에 저장 중...(2)')
-            download_path = r"C:\Users\user\Downloads"  # 파일 다운로드 경로
+            download_path = r"C:\Users\user\Downloads\test"  # 파일 다운로드 경로
 
-            # (1) 파일 확장자 분리
+            # (1) 경로가 존재하지 않는 경우 디렉토리를 생성하고 빈 파일을 만듭니다.
+            if not os.path.exists(download_path):
+                os.makedirs(download_path)
+
+            # (2) 파일 확장자 분리
             dencode_filedata = base64.b64decode(file_ddata)
 
-            # (2) 파일 저장
+            # (3) 파일 저장
             save_path = os.path.join(download_path, file_download_name)
 
             with open(save_path, 'wb') as file:
@@ -350,6 +415,8 @@ class Active_Window(QMainWindow):
             print(f"파일 수신 및 저장 성공: {file_download_name}")
             self.text_network_view.append(f"파일 수신 및 저장 성공: {file_download_name}")
 
+            # self.file_widget_Item_add()
+
         except Exception as e:
             print(f"파일 수신 및 저장 중 오류 발생: {e}")
 
@@ -357,7 +424,7 @@ class Active_Window(QMainWindow):
     # 5. 화면 공유 관련
     # 5.1 화면 공유 코드
     def screen_sharing_start(self):
-        if self.receive_started == False:
+        #if self.receive_started == False:          # false 명령어 불가
             print("화면공유 스레드 시작")
 
             while self.sharing_started:
@@ -385,14 +452,18 @@ class Active_Window(QMainWindow):
                 pixmap = QPixmap.fromImage(qimage)
                 self.Webcam_label.setPixmap(pixmap)
 
-                time.sleep(0.1)         
-        else:
-            self.text_network_view.append("에러 : 이미 공유화면 수신하고 있어, 화면 공유를 할 수 없습니다.")
+                time.sleep(0.1)
+
+                # (6) 화면 공유 종료
+                if self.sharing_started == False:
+                    break
+        #else:
+            #self.text_network_view.append("에러 : 이미 공유화면 수신하고 있어, 화면 공유를 할 수 없습니다.")
     
     # 5.2 화면 공유 시작 기능
     def sharing_start(self):
         if self.network_connect_count:
-            if self.receive_started == False:
+            #if self.receive_started == False:
                 self.text_network_view.append('기능 : 화면공유 시작하는 중...')
                 self.sharing_started = True
 
@@ -401,8 +472,8 @@ class Active_Window(QMainWindow):
                 sharing_thread.daemon = True
                 # self.threads.append(sharing_thread)
                 sharing_thread.start()
-            else:
-                self.text_network_view.append('오류 : 이미 공유화면 수신하고 있어, 화면 공유를 할 수 없습니다.')
+            #else:
+            #    self.text_network_view.append('오류 : 이미 공유화면 수신하고 있어, 화면 공유를 할 수 없습니다.')
         else:
             self.text_network_view.append('오류 : 오프라인 상태에서 화면 공유할 수 없습니다.')
 
@@ -411,8 +482,15 @@ class Active_Window(QMainWindow):
         if self.network_connect_count:
             if self.sharing_started:
                 self.text_network_view.append('기능 : 화면공유 종료하는 중...')
-                self.timer.stop()
+                # self.timer.stop()
+                self.sharing_started = False
+                self.receive_started = False
 
+                # self.recv_sharing_thread1.stop()
+                # self.recv_sharing_thread2.stop()
+                # self.sharing_thread.stop()
+                # self.sharing_thread.join()
+                # self.Webcam_label.setPixmap(None)
                 time.sleep(2)
                 self.text_network_view.append('기능 : 화면공유 종료되었습니다.')
 

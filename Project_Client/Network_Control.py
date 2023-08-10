@@ -30,9 +30,12 @@ class Client:
             self.RThread.start()
 
             # 결과 반환
+            self.net_open_connected = True
             return True
+
         except Exception as e:
             print(f"Error occurred while opening the client : {e}")
+            self.net_open_connected = False
             return False
 
     def close(self):
@@ -51,18 +54,11 @@ class Client:
                 data = new_data
 
                 msg = data.decode('utf-8').strip('\0')
-                # sp1 = msg.split('@')
-                # if sp1[0] == Network_Packet.Sendbyte_ACK:
-                #     decoded_base = base64.b64decode(msg)
-                #     msg = decoded_base.decode('utf-8')
-                #     self.recv_del(msg)
-                # else:
-
                 print("recv_thread msg 통과")
                 self.recv_del(msg)
 
         except Exception as e:
-            print(e)
+            print(f'recv_thread 에러 : {e}')
             self.close()
 
     # 데이터 송/수신
@@ -86,7 +82,7 @@ class Client:
                 total += ret
                 left_data -= ret
         except Exception as e:
-            print(e)
+            print(f'send_data 에러 : {e}')
 
     def RecvData(self, data):
         try:
@@ -113,5 +109,12 @@ class Client:
             return data
 
         except Exception as e:
-            print(e)
+            print(f'RecvData 에러 : {e}')
+            # self.socket_close_text()
+            # self.net_open_connected = False
             return None
+
+    #def socket_close_text(self, close_socket_text):
+    #    print('socket_close_text 실행됨')
+    #    close_socket_text = True
+

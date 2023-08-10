@@ -17,8 +17,10 @@ Logout_ACK = "LOGOUT_ACK"
 Shortmessage_ACK = "SHORTMESSAGE_ACK"
 Sendfile_ACK = "SENDFILE_ACK"
 Sendbyte_ACK = "SENDBYTE_ACK"
+Sendbytebreak_ACK = "SENDBYTEBREAK_ACK"
 Sendremote_ACK = "SENDREMOTE_ACK"
 Request_Screen_ACK = "REQUEST_SCREEN_ACK"
+Request_Screen_Stop_ACK = "REQUEST_SCREEN_STOP_ACK"
 
 
 # Client -> Server 전송 패킷 만드는 부분
