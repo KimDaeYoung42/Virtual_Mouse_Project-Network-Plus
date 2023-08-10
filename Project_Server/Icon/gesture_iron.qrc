@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="gesture_i">
+    <file>gesture2_four.png</file>
+    <file>gesture2_good.png</file>
+    <file>gesture2_index.png</file>
+    <file>gesture2_three.png</file>
     <file>gesture_all_state.png</file>
     <file>gesture_index_middle.png</file>
     <file>gesture_index_middle_ring.png</file>

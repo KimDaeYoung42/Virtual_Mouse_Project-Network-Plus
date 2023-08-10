@@ -4,8 +4,7 @@ import numpy as np
 import time, os
 
 # action for ML
-# 필요한 action ---- 주먹, 다핌, 검지중지, 엄지검지, 엄지중지, 엄지소지만, 소지만 ---- 7개
-actions = ['scissors', 'thumb_index', 'rock', 'paper', 'ring_pinky', 'index_middle_ring', 'thumb_pinky', 'index_pinky', 'index_right', 'pinky']
+actions = ['scissors', 'thumb_index', 'rock', 'paper', 'index_right', 'index', 'good', 'three', 'four', 'pinky']
 seq_length = 30
 secs_for_action = 30
 

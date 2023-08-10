@@ -3,7 +3,7 @@ import os
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Conv2D, MaxPooling2D, Flatten
+from tensorflow.keras.layers import LSTM, Dense
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 import matplotlib.pyplot as plt
 from sklearn.metrics import multilabel_confusion_matrix
@@ -13,20 +13,20 @@ from tensorflow.keras.models import load_model
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
-actions = ['scissors', 'thumb_index', 'rock', 'paper', 'ring_pinky', 'index_middle_ring','thumb_pinky', 'index_pinky', 'index_right', 'pinky']
+actions = ['scissors', 'thumb_index', 'rock', 'paper', 'index_right', 'index', 'good', 'three', 'four', 'pinky']
 
 # dataset 로드하는 부분
 data = np.concatenate([
-    np.load('dataset/seq_scissors_1691386846.npy'),
-    np.load('dataset/seq_thumb_index_1691386846.npy'),
-    np.load('dataset/seq_rock_1691386846.npy'),
-    np.load('dataset/seq_paper_1691386846.npy'),
-    np.load('dataset/seq_ring_pinky_1691386846.npy'),
-    np.load('dataset/seq_index_middle_ring_1691386846.npy'),
-    np.load('dataset/seq_thumb_pinky_1691386846.npy'),
-    np.load('dataset/seq_index_pinky_1691386846.npy'),
-    np.load('dataset/seq_index_right_1691386846.npy'),
-    np.load('dataset/seq_pinky_1691386846.npy')
+    np.load('dataset/seq_scissors_1691640815.npy'),
+    np.load('dataset/seq_thumb_index_1691640815.npy'),
+    np.load('dataset/seq_rock_1691640815.npy'),
+    np.load('dataset/seq_paper_1691640815.npy'),
+    np.load('dataset/seq_index_right_1691640815.npy'),
+    np.load('dataset/seq_index_1691640815.npy'),
+    np.load('dataset/seq_good_1691640815.npy'),
+    np.load('dataset/seq_three_1691640815.npy'),
+    np.load('dataset/seq_four_1691640815.npy'),
+    np.load('dataset/seq_pinky_1691640815.npy')
 ], axis=0)
 
 # print(data.shape) # (x, 30, 100)

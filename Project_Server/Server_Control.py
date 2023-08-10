@@ -54,6 +54,9 @@ class Server:
             self.sockets.remove(client)
             client.close()
 
+    def close(self):
+        self.server.close()
+
     def send_data(self, sock, msg):
         bmsg = msg.encode('utf-8')
         self.send_data_with_size(sock, bmsg)
@@ -155,6 +158,13 @@ class Control:
         return pack
     
     @staticmethod
+    def send_bytes_break_ack(server):
+
+        pack = Packet.SendByteBreak_ACK()
+        server.send_all_data(pack)
+        return pack
+    
+    @staticmethod
     def send_file_ack(filename, filedata, server):
         pack = Packet.SendFile_ACK(filename, filedata)
         server.send_all_data(pack)
@@ -163,5 +173,11 @@ class Control:
     @staticmethod
     def request_screen_ack(name, server):
         pack = Packet.Reques_Screnn_ACK(name)
+        server.send_all_data(pack)
+        return pack
+    
+    @staticmethod
+    def request_screen_stop_ack(server):
+        pack = Packet.Requst_Screen_Stop_ACK()
         server.send_all_data(pack)
         return pack

@@ -24,7 +24,9 @@ class PacketTag(Enum):
     Shortmessage_ACK = "SHORTMESSAGE_ACK"
     Sendfile_ACK = "SENDFILE_ACK"
     Sendbyte_ACK = "SENDBYTE_ACK"
+    Sendbytebreak_ACK = "SENDBYTEBREAK_ACK"
     Request_Screen_ACK = "REQUEST_SCREEN_ACK"
+    Request_Screen_Stop_ACK = "REQUEST_SCREEN_STOP_ACK"
 
 
 # Client -> Server 전송 패킷 만드는 부분
@@ -168,10 +170,28 @@ class Packet:
         return pack
     
     @staticmethod
+    def SendByteBreak_ACK():
+        pack = ''
+        
+        pack += PacketTag.Sendbytebreak_ACK.value + '@'
+        pack += 'admin'
+
+        return pack
+    
+    @staticmethod
     def Reques_Screnn_ACK(name):
         pack = ''
 
         pack += PacketTag.Request_Screen_ACK.value + '@'
         pack += name
+
+        return pack
+    
+    @staticmethod
+    def Requst_Screen_Stop_ACK():
+        pack = ''
+        
+        pack += PacketTag.Request_Screen_Stop_ACK.value + '@'
+        pack += 'admin'
 
         return pack

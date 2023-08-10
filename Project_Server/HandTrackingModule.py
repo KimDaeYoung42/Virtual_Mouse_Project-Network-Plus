@@ -10,8 +10,8 @@ class HandDetector:
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
             max_num_hands=1,
-            min_detection_confidence=0.6,
-            min_tracking_confidence=0.6
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.7
             )
         self.mp_draw = mp.solutions.drawing_utils
         self.tip_ids = [4, 8, 12, 16, 20]   # 손가락 landmark 번호
@@ -91,11 +91,11 @@ class HandDetector:
                 action = actions[i_pred]
                 action_seq.append(action)
 
-                if len(action_seq) < 3:
+                if len(action_seq) < 5:
                     continue
 
                 # action이 3개 연속일 때
-                if action_seq[-1] == action_seq[-2] == action_seq[-3]:
+                if action_seq[-1] == action_seq[-2] == action_seq[-3] == action_seq[-4] == action_seq[-5]:
                     this_action = action
                 
                 cv2.putText(img, f'{this_action.upper()}', org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
