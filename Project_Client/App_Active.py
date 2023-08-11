@@ -177,12 +177,14 @@ class Active_Window(QMainWindow):
                 # 4) 파일 데이터 수신
                 elif sp1[0] == Network_Packet.Sendfile_ACK:
                     self.text_network_view.append("기능 : 서버로부터 파일 데이터를 수신하였습니다.")
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
                     sp2 = sp1[1].split('#')
                     file_recv_name = sp2[0]
                     file_recv_data = sp2[1]
 
                     self.text_network_view.append('기능 : 파일 데이터 다운로드 진행 중... (1)')
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                     time.sleep(5)                                                       # file_recv_data 데이터가 전부 받아올때까지 시간 대기
                     self.file_download(file_recv_name, file_recv_data)
 
@@ -191,6 +193,7 @@ class Active_Window(QMainWindow):
                     # print(sp1[1])
                     self.receive_started = True
                     self.text_network_view.append('기능 : 공유화면 데이터 수신하였습니다.')
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
                     try:
                         # 메인 화면
@@ -205,11 +208,14 @@ class Active_Window(QMainWindow):
 
                     except Exception as e:
                         self.text_chat_view.append("오류 : 공유화면 데이터 수신 실패하였습니다.")
+                        self.text_network_view.append("오류 : 공유화면 데이터 수신 실패하였습니다.")
+                        self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                         print(f"Error displaying image: {e}")
 
                 # 6) 원격 화면 기능 (클라이언트)
                 elif sp1[0] == Network_Packet.Request_Screen_ACK:
                     self.text_network_view.append("기능 : 서버로부터 모니터 화면 요청이 들어왔습니다.")
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                     # 내가 가진 이름과 요청받은 이름이 같을 경우 // 서버에게 화면 공유를 해야한다.
                     if self.myname == sp1[1]:
                         self.sharing_start()
@@ -217,6 +223,7 @@ class Active_Window(QMainWindow):
                 # 7) 화면 수신 종료 기능 (서버)
                 elif sp1[0] == Network_Packet.Sendbytebreak_ACK:
                     self.text_network_view.append("기능 : 서버로부터의 공유화면이 종료되었습니다.")
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
                     # time.sleep(5)
                     self.sharing_started = False  # 화면 공유 관련
@@ -228,19 +235,23 @@ class Active_Window(QMainWindow):
                     # self.recv_sharing_thread2.join()
 
                     self.text_network_view.append("기능 : 정상적으로 공유 화면 수신 종료되었습니다.")
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
                 # 8) 공유화면 전송 종료 기능 (클라이언트)
                 elif sp1[0] == Network_Packet.Request_Screen_Stop_ACK:
                     self.text_network_view.append("기능 : 서버로부터의 공유화면이 종료되었습니다.")
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                     self.sharing_started = False  # 화면 공유 관련
                     self.receive_started = False  # 화면 수신 관련
 
                 else:
                     self.text_network_view.append('에러 : 알 수 없는 데이터가 수신되었습니다.')
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                     print(f"서버로부터 수신한 알 수 없는 데이터 (1) : {msg}")
 
             except Exception as e:
                 self.text_network_view.append('에러 : 알 수 없는 데이터 오류가 발생하였습니다.')
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                 print(f"서버로부터 수신한 알 수 없는 데이터 (2) : {msg}")
                 print("오류가 발생했습니다 : ", e)
 
@@ -258,6 +269,7 @@ class Active_Window(QMainWindow):
         if not self.network_connect_count:
             self.text_chat_view.clear()
             self.text_network_view.append('네트워크 : 네트워크 연결 중...')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
             try:
                 # (1) Client생성 및 서버 연결
                 self.client = Client(ip=ip, port=port)
@@ -267,6 +279,7 @@ class Active_Window(QMainWindow):
                     self.chatting_count = True
                     self.network_connect_count = True
                     self.text_network_view.append('네트워크: 연결되었습니다.')
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                     self.text_chat_view.append('네트워크: 연결되었습니다.')
 
                     # (3) 로그인 패킷 생성 및 전송
@@ -277,14 +290,17 @@ class Active_Window(QMainWindow):
 
                 else:
                     self.text_network_view.append('네트워크: 연결 실패했습니다.')
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                     self.text_chat_view.append('네트워크: 연결 실패했습니다.')
 
             except Exception as e:
                 self.text_network_view.append('에러 : 네트워크 접속에 실패하였습니다.')
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                 print("네트워크 접속 오류 : ", e)
 
         else:
             self.text_network_view.append('에러 : 이미 네트워크 접속되어 있습니다.')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
     # 2.2 네트워크 종료 기능
     def network_disconnect(self):
@@ -300,9 +316,11 @@ class Active_Window(QMainWindow):
             self.client.close()
             self.person_listWidget.clear()
             self.text_network_view.append('네트워크 : 연결 종료 되었습니다.')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
             self.text_chat_view.append('네트워크 : 연결 종료 되었습니다.')
         else:
             self.text_network_view.append('에러 : 이미 네트워크 종료되어 있습니다.')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
     # 2.3 소켓 비정상 감지시
     # def network_socket_close(self):
@@ -322,6 +340,7 @@ class Active_Window(QMainWindow):
     def chatting_send(self):
         if self.network_connect_count:
             self.text_network_view.append('기능 : 채팅 메시지를 서버에 전송했습니다.')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
             chatting_text = self.text_chatting_insert.toPlainText()
 
@@ -361,6 +380,7 @@ class Active_Window(QMainWindow):
     def file_send(self):
         if self.network_connect_count:
             self.text_network_view.append('기능 : 파일전송 기능 선택')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
             send_file_path = r"C:\Users\user\Desktop\file_send"  # 원본 파일 경로!
             selected_file = self.file_list_widget.currentItem()
 
@@ -383,20 +403,26 @@ class Active_Window(QMainWindow):
                     pack = Network_Packet.SendFile(file_send_name, based_file_data)
                     self.client.SendData(pack)
                     self.text_network_view.append('기능 : 파일이 성공적으로 전달되었습니다.')
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
                 else:
                     self.text_network_view.append('에러 : 전송할 파일의 경로가 없습니다')
+                    self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
             else:
                 self.text_network_view.append('에러 : 전송할 파일을 선택해주세요.')
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
         else:
             self.text_network_view.append('오류 : 오프라인 상태 입니다.')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
     # 4.4 파일 다운로드 (자동)
     def file_download(self, file_download_name, file_ddata):
         self.text_network_view.append('기능 : 전송받은 파일이 있습니다.')
+        self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
         try:
             self.text_network_view.append('기능 : 파일을 download 파일에 저장 중...(2)')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
             download_path = r"C:\Users\user\Downloads\test"  # 파일 다운로드 경로
 
             # (1) 경로가 존재하지 않는 경우 디렉토리를 생성하고 빈 파일을 만듭니다.
@@ -414,6 +440,7 @@ class Active_Window(QMainWindow):
 
             print(f"파일 수신 및 저장 성공: {file_download_name}")
             self.text_network_view.append(f"파일 수신 및 저장 성공: {file_download_name}")
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
             # self.file_widget_Item_add()
 
@@ -442,6 +469,7 @@ class Active_Window(QMainWindow):
                 self.client.SendData(pack)
 
                 self.text_network_view.append("기능 : 화면공유 중...")
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
                 # (4) 이미지를 PyQt5의 QImage로 변환 (이미지 크기를 640x360으로 조정)
                 width, height = 640, 360
@@ -459,12 +487,14 @@ class Active_Window(QMainWindow):
                     break
         #else:
             #self.text_network_view.append("에러 : 이미 공유화면 수신하고 있어, 화면 공유를 할 수 없습니다.")
+            #self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
     
     # 5.2 화면 공유 시작 기능
     def sharing_start(self):
         if self.network_connect_count:
             #if self.receive_started == False:
                 self.text_network_view.append('기능 : 화면공유 시작하는 중...')
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                 self.sharing_started = True
 
                 # 화면 공유 코드
@@ -474,14 +504,17 @@ class Active_Window(QMainWindow):
                 sharing_thread.start()
             #else:
             #    self.text_network_view.append('오류 : 이미 공유화면 수신하고 있어, 화면 공유를 할 수 없습니다.')
+            #   self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
         else:
             self.text_network_view.append('오류 : 오프라인 상태에서 화면 공유할 수 없습니다.')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
     # 5.3 화면 공유 종료 기능
     def sharing_stop(self):
         if self.network_connect_count:
             if self.sharing_started:
                 self.text_network_view.append('기능 : 화면공유 종료하는 중...')
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
                 # self.timer.stop()
                 self.sharing_started = False
                 self.receive_started = False
@@ -493,11 +526,14 @@ class Active_Window(QMainWindow):
                 # self.Webcam_label.setPixmap(None)
                 time.sleep(2)
                 self.text_network_view.append('기능 : 화면공유 종료되었습니다.')
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
             else:
                 self.text_network_view.append('오류 : 화면공유 기능하지 않고 있습니다.')
+                self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
         else:
             self.text_network_view.append('오류 : 오프라인 상태 입니다.')
+            self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
     # 5.4 공유 화면 수신 기능
     def Recv_Screen_Thread(self, img):
@@ -550,6 +586,7 @@ class Active_Window(QMainWindow):
     # 6.1 원격조정 시작 기능
     def remote_start(self):
         self.text_network_view.append('기능 : 원격조정 시작하는 중...')
+        self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
         # 원격 조정할 유저 선택
         selected_items = self.person_listWidget.selectedItems()
@@ -566,12 +603,15 @@ class Active_Window(QMainWindow):
             QtWidgets.QMessageBox.warning(self, "선택 오류", "원격 조정할 유저를 선택해주세요.")
 
         self.text_network_view.append('에러 : 원격조정에 실패하였습니다.')
+        self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
     # 6.2 원격조정 종료 기능
     def remote_stop(self):
         self.text_network_view.append('기능 : 원격조정 종료하는 중...')
+        self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
         time.sleep(2)
         self.text_network_view.append('에러 : 원격조정 종료 실패하였습니다.')
+        self.text_network_view.moveCursor(self.text_network_view.textCursor().End)
 
 
     # 7. 이외. help! 도움!
