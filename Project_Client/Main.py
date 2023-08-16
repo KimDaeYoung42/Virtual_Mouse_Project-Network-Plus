@@ -12,6 +12,11 @@ __developer__ = 'KimDaeYoung42, Woosss99, Su-hwanKim, minseok4266, ELUKA123'
 __author_email__ = 'Representative : Hawkthema@gmail.com'
 __url__ = 'https://github.com/KimDaeYoung42/Virtual_Mouse_Project'
 
+# Copyright (c) [2023_08] ['KimDaeYoung42, Woosss99, Su-hwanKim, minseok4266, ELUKA123']
+#
+# 이 소프트웨어는 MIT 라이선스 하에 배포됩니다.
+# 자세한 내용은 LICENSE 파일을 참조하십시오.
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
