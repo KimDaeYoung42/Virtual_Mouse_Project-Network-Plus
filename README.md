@@ -1,7 +1,7 @@
-# Win_Network  
+# Virtual_Mouse_Project-Network-Plus
 
 ## Project Name  
-Virtual Input Interface Using Webcam  
+Virtual Input Interface Using Webcam (Network Plus)  
 
 ## Project Overview  
 ### [Overview]  
