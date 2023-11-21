@@ -31,10 +31,10 @@ Python libraries: OpenCV 4.5.1.48, Mediapipe 0.8.7
 Modules and libraries: socket, threading, math, numpy, time, psutil, autopy, pyautogui, pygetwindow, zlib, base64, shutil, subprocess, enum, struct, etc.
 
 ------------------------------------
-1. 1 프로젝트명
-      WebCam을 이용한 가상 입력 인터페이스
+1. 프로젝트명
+WebCam을 이용한 가상 입력 인터페이스
 
-1. 2 프로젝트 개요 
+2. 프로젝트 개요 
 [개요]
    “기존의 키보드와 마우스 없이도 편리하게”
 ● 기존의 “키보드와 마우스”는 효과적이고 널리 사용되는 컴퓨터 입력 장치이다. 그러나 일부 사용자들에게는 신체적인 제약이나 편의성, 장소적 문제로 인해 이러한 입력 장치의 사용이 제한될 수 있다. 
