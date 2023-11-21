@@ -1,10 +1,10 @@
 # Virtual_Mouse_Project-Network-Plus
 
 ## Project Name  
-Virtual Input Interface Using Webcam (Network Plus)  
-Client Program     
+### [ Virtual Input Interface Using Webcam (Network Plus) ] 
+● Client Program     
 ![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/871801da-636a-40b8-8724-3e2f8b691406)    
-Server Program + Hand Gesture Capture Program    
+● Server Program + Hand Gesture Capture Program    
 ![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/5efea393-ce22-4783-900d-eabe3eda345c)    
 
 
