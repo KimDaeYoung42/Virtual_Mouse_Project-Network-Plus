@@ -2,8 +2,10 @@
 
 ## Project Name  
 Virtual Input Interface Using Webcam (Network Plus)  
-![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/543c13ae-785e-40e0-8d3e-bb67d4ca5507)
-![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/fa8a4348-474f-47ef-bee4-27110bf7b013)
+Client Program     
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/871801da-636a-40b8-8724-3e2f8b691406)    
+Server Program + Hand Gesture Capture Program    
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/5efea393-ce22-4783-900d-eabe3eda345c)    
 
 
 ## Project Overview  
@@ -109,16 +111,17 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ● 개발 2단계 : 2023.7.17 ~ 8.18   
 
 ### [프로그램 전체 구성도]    
-![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/469ecdf4-cf13-4169-94fb-8c253d059960)
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/08bad314-705f-4636-a29c-96a9d72dd3ea)
 
 ### [모델학습 흐름도]    
-![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/e5340f89-2416-4486-99d2-21bb034e3629)
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/a4c4568c-7617-404a-a0ff-82d884386991)
 
 ### [제어자 프로그램 흐름도]    
-![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/30b15d58-ebc2-4669-9e4a-c4061adfa4d4)
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/5a107b87-9250-461f-9bcc-ac0f21502f2f)
 
 ### [클라이언트 프로그램 흐름도]    
-![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/0bd9eeb9-7d09-4226-a4c9-3a116a96b582)
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/deab192c-4eb3-47cf-b05c-3e8aa178d743)
+
 
 
 
