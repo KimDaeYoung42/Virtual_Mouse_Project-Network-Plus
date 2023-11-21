@@ -12,6 +12,16 @@ Virtual Input Interface Using Webcam (Network Plus)
 ● This program detects and interprets the user's hand gestures, enabling mouse pointer movement, clicking, scrolling, dragging, and other functions on the computer screen.  
 ● By providing this capability, the program offers a more convenient way to operate the computer for users with physical constraints or in special environments.  
 
+### [Development Objectives]
+● Providing Non-Contact Interface :    
+To enable users to intuitively manipulate the computer screen without the need for traditional keyboards and mice. By detecting hand movements and replacing cursor and keyboard inputs, it significantly enhances user convenience.    
+● Accurate Hand Gesture Recognition :    
+Accurately recognizing hand shapes to interpret various movements and reflect them in screen operations. This maximizes the utility of the program by precisely conveying the user's desired actions, enhancing the overall user experience.    
+● Real-Time Responsiveness :    
+Detecting changes in hand shapes in real-time and promptly responding to screen manipulations. Offering smooth movements without buffering to improve user efficiency in their tasks.
+● Diverse Application Areas :    
+Suitable for use as an assistive device for individuals with disabilities. It can also serve as an innovative interface in presentation tools, media editing, games, and other applications.    
+
 ### [Key Design Points]  
 
 ● Utilization of motion capture technology    
@@ -55,6 +65,16 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ● 우리 조에서 개발한 "Motion Capture 기반의 Hand-Tracking Mouse" 프로그램은 사용자가 기존의 키보드와 마우스 없이 웹캠만을 사용해 컴퓨터를 조작할 수 있게 해주는 혁신적인 솔루션이다.  
 ● 이 프로그램은 사용자의 손동작을 감지하고 해석하여 컴퓨터 화면 위에서 마우스 포인터를 움직이며 클릭 및 스크롤, 드래그 등의 기능을 구현한다.  
 ● 이러한 장점을 통해 신체적 제약이 있는 사용자나 특수한 환경에서 더 편리하게 컴퓨터를 조작할 수 있는 환경을 제공한다.  
+
+### [개 발 목 표]
+● 비접촉 인터페이스 제공 :
+사용자가 기존의 키보드와 마우스 없이도 컴퓨터 화면을 손 모양을 통해 직관적으로 조작할 수 있도록 한다. 손의 동작을 감지하여 커서 및 키보드 입력을 대체하므로 사용자의 편의성을 크게 향상 시킨다.    
+● 정확한 손 모양 인식 :     
+손 모양을 정확하게 인식하여 다양한 동작을 해석하고 화면 조작에 반영한다. 이를 통해 사용자가 원하는 동작을 정확하게 전달하여 프로그램의 유용성을 최대한 높이며, 사용자 경험을 향상 시킨다.    
+● 실시간 반응성 :     
+실시간으로 손 모양의 변화를 감지하고 화면 조작에 즉각적으로 반응한다. 버퍼링 없는 자연스러운 움직임을 제공하여 사용자의 작업 효율을 향상 시킨다.    
+● 다양한 응용 분야 :     
+장애인 보조 장치로도 사용 가능하며 프레젠테이션 도구, 미디어 편집, 게임 등에서 혁신적인 인터페이스로 활용될 수 있다.    
 
 ### [설계의 주안점]  
 ● 모션 캡처 기술 활용   
