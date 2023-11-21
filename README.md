@@ -34,8 +34,8 @@ Virtual Input Interface Using Webcam (Network Plus)
 ● Modules and libraries: socket, threading, math, numpy, time, psutil, autopy, pyautogui, pygetwindow, zlib, base64, shutil, subprocess, enum, struct, etc.  
 
 ## [Project development schedule]    
-● Development Phase 1 : 2023.6.1~7.14    
-● Development Phase 2 : 2023.7.17~8.18    
+● Development Phase 1 : 2023.6.1 ~ 7.14    
+● Development Phase 2 : 2023.7.17 ~ 8.18    
 
 ------------------------------------
 ## 1. 프로젝트명  
@@ -68,5 +68,5 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ● 모듈 및 라이브러리: socket, threading, math, numpy, time, psutil, autopy, pyautogui, pygetwindow, zlib, base64, shutil, subprocess, enum, struct 등  
 
 ### [프로젝트 개발 일정]
-● 개발 1단계 : 2023.6.1~7.14   
-● 개발 2단계 : 2023.7.17~8.18   
+● 개발 1단계 : 2023.6.1 ~ 7.14   
+● 개발 2단계 : 2023.7.17 ~ 8.18   
