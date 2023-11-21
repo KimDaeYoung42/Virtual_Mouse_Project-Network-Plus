@@ -2,6 +2,9 @@
 
 ## Project Name  
 Virtual Input Interface Using Webcam (Network Plus)  
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/543c13ae-785e-40e0-8d3e-bb67d4ca5507)
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/fa8a4348-474f-47ef-bee4-27110bf7b013)
+
 
 ## Project Overview  
 ### [Overview]  
@@ -67,7 +70,7 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ● 이러한 장점을 통해 신체적 제약이 있는 사용자나 특수한 환경에서 더 편리하게 컴퓨터를 조작할 수 있는 환경을 제공한다.  
 
 ### [개 발 목 표]
-● 비접촉 인터페이스 제공 :
+● 비접촉 인터페이스 제공 :    
 사용자가 기존의 키보드와 마우스 없이도 컴퓨터 화면을 손 모양을 통해 직관적으로 조작할 수 있도록 한다. 손의 동작을 감지하여 커서 및 키보드 입력을 대체하므로 사용자의 편의성을 크게 향상 시킨다.    
 ● 정확한 손 모양 인식 :     
 손 모양을 정확하게 인식하여 다양한 동작을 해석하고 화면 조작에 반영한다. 이를 통해 사용자가 원하는 동작을 정확하게 전달하여 프로그램의 유용성을 최대한 높이며, 사용자 경험을 향상 시킨다.    
@@ -104,3 +107,6 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ### [프로젝트 개발 일정]
 ● 개발 1단계 : 2023.6.1 ~ 7.14   
 ● 개발 2단계 : 2023.7.17 ~ 8.18   
+
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/469ecdf4-cf13-4169-94fb-8c253d059960)
+
