@@ -35,7 +35,7 @@ Modules and libraries: socket, threading, math, numpy, time, psutil, autopy, pya
 
 ------------------------------------
 ## 1. 프로젝트명  
-WebCam을 이용한 가상 입력 인터페이스    
+WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)      
 
 ## 2. 프로젝트 개요   
 ### [개요]  
