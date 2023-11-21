@@ -108,5 +108,20 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ● 개발 1단계 : 2023.6.1 ~ 7.14   
 ● 개발 2단계 : 2023.7.17 ~ 8.18   
 
+### [프로그램 전체 구성도]    
 ![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/469ecdf4-cf13-4169-94fb-8c253d059960)
+
+### [모델학습 흐름도]    
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/e5340f89-2416-4486-99d2-21bb034e3629)
+
+### [제어자 프로그램 흐름도]    
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/30b15d58-ebc2-4669-9e4a-c4061adfa4d4)
+
+### [클라이언트 프로그램 흐름도]    
+![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/0bd9eeb9-7d09-4226-a4c9-3a116a96b582)
+
+
+
+
+
 
