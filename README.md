@@ -59,6 +59,13 @@ Suitable for use as an assistive device for individuals with disabilities. It ca
 ● Development Phase 1 : 2023.6.1 ~ 7.14    
 ● Development Phase 2 : 2023.7.17 ~ 8.18    
 
+## [Project Collaborator-developer]
+Team leader: https://github.com/KimDaeYoung42   
+Team 1: https://github.com/Woosss99   
+Team 2: https://github.com/Su-hwanKim    
+Team 3: https://github.com/ELUKA123    
+Team 4: https://github.com/minseok4266   
+
 ------------------------------------
 ## 1. 프로젝트명  
 WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)      
@@ -109,6 +116,13 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ### [프로젝트 개발 일정]
 ● 개발 1단계 : 2023.6.1 ~ 7.14   
 ● 개발 2단계 : 2023.7.17 ~ 8.18   
+
+### [팀 프로젝트 개발자]
+Team leader: https://github.com/KimDaeYoung42   
+Team 1: https://github.com/Woosss99   
+Team 2: https://github.com/Su-hwanKim    
+Team 3: https://github.com/ELUKA123    
+Team 4: https://github.com/minseok4266   
 
 ### [프로그램 전체 구성도]    
 ![image](https://github.com/KimDaeYoung42/Virtual_Mouse_Project-Network-Plus/assets/130177839/08bad314-705f-4636-a29c-96a9d72dd3ea)
