@@ -7,31 +7,35 @@ Virtual Input Interface Using Webcam (Network Plus)
 ### [Overview]  
 "Convenient computer interaction without traditional keyboard and mouse."
 
-Traditional "keyboard and mouse" are effective and widely used computer input devices. However, some users may be limited in using these input devices due to physical constraints, convenience issues, or spatial constraints.   
-Our team has developed an innovative solution called "Motion Capture-based Hand-Tracking Mouse," allowing users to manipulate the computer using only a webcam without the need for traditional keyboard and mouse.   
-This program detects and interprets the user's hand gestures, enabling mouse pointer movement, clicking, scrolling, dragging, and other functions on the computer screen.  
-By providing this capability, the program offers a more convenient way to operate the computer for users with physical constraints or in special environments.  
+● Traditional "keyboard and mouse" are effective and widely used computer input devices. However, some users may be limited in using these input devices due to physical constraints, convenience issues, or spatial constraints.   
+● Our team has developed an innovative solution called "Motion Capture-based Hand-Tracking Mouse," allowing users to manipulate the computer using only a webcam without the need for traditional keyboard and mouse.   
+● This program detects and interprets the user's hand gestures, enabling mouse pointer movement, clicking, scrolling, dragging, and other functions on the computer screen.  
+● By providing this capability, the program offers a more convenient way to operate the computer for users with physical constraints or in special environments.  
 
 ### [Key Design Points]  
 
-Utilization of motion capture technology: Capture and analyze users' hand movements in real-time using a webcam, interpreting various gestures and actions for computer control.  
-Accurate tracking algorithm: Employ a highly accurate model through precise model training to smoothly and accurately control the mouse pointer's movement by recognizing hand movements.  
-Simple user interface: Design an intuitive and easy-to-use interface to allow any user to easily access and utilize the program.  
+● Utilization of motion capture technology: Capture and analyze users' hand movements in real-time using a webcam, interpreting various gestures and actions for computer control.  
+● Accurate tracking algorithm: Employ a highly accurate model through precise model training to smoothly and accurately control the mouse pointer's movement by recognizing hand movements.  
+● Simple user interface: Design an intuitive and easy-to-use interface to allow any user to easily access and utilize the program.  
 
 ### [Expected Effects]  
 
-Overcoming physical constraints: Provide a better computer usage environment for those who find it challenging to use physical keyboards and mice, expanding the scope of digital activities.  
-Creative utilization: Enable new interaction designs based on user hand movements, encouraging creative and interesting ways of using computers.  
-Improved work productivity: Enhance work productivity in environments such as industrial settings, where users can manipulate computers without direct physical contact.  
-Enhanced security: Strengthen privacy management as computer usage is possible in shared environments without personal input devices.  
+● Overcoming physical constraints: Provide a better computer usage environment for those who find it challenging to use physical keyboards and mice, expanding the scope of digital activities.  
+● Creative utilization: Enable new interaction designs based on user hand movements, encouraging creative and interesting ways of using computers.  
+● Improved work productivity: Enhance work productivity in environments such as industrial settings, where users can manipulate computers without direct physical contact.  
+● Enhanced security: Strengthen privacy management as computer usage is possible in shared environments without personal input devices.  
 
 ## [Technologies Used]  
 
-Development tools: PyCharm, Visual Studio Code, Qt Designer  
-Programming language: Python 3.7.9  
-Frameworks and technology stack: TensorFlow, Keras, PyQt5  
-Python libraries: OpenCV 4.5.1.48, Mediapipe 0.8.7  
-Modules and libraries: socket, threading, math, numpy, time, psutil, autopy, pyautogui, pygetwindow, zlib, base64, shutil, subprocess, enum, struct, etc.  
+● Development tools: PyCharm, Visual Studio Code, Qt Designer  
+● Programming language: Python 3.7.9  
+● Frameworks and technology stack: TensorFlow, Keras, PyQt5  
+● Python libraries: OpenCV 4.5.1.48, Mediapipe 0.8.7  
+● Modules and libraries: socket, threading, math, numpy, time, psutil, autopy, pyautogui, pygetwindow, zlib, base64, shutil, subprocess, enum, struct, etc.  
+
+## [Project development schedule]    
+● Development Phase 1 : 2023.6.1~7.14    
+● Development Phase 2 : 2023.7.17~8.18    
 
 ------------------------------------
 ## 1. 프로젝트명  
@@ -63,3 +67,6 @@ WebCam을 이용한 가상 입력 인터페이스 (네트워크 기능 추가)
 ● Python 라이브러리: OpenCV 4.5.1.48, Mediapipe 0.8.7   
 ● 모듈 및 라이브러리: socket, threading, math, numpy, time, psutil, autopy, pyautogui, pygetwindow, zlib, base64, shutil, subprocess, enum, struct 등  
 
+### [프로젝트 개발 일정]
+● 개발 1단계 : 2023.6.1~7.14   
+● 개발 2단계 : 2023.7.17~8.18   
